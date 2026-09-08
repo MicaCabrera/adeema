@@ -1,14 +1,45 @@
 import Button from './ui/Button';
-import Card from './ui/Card';
 
 const networkPartners = [
-  { icon: '🏛️', label: 'Municipios y Gobiernos' },
-  { icon: '🏢', label: 'Cámaras Empresariales e Instituciones' },
-  { icon: '🎓', label: 'Universidades y Colegios' },
-  { icon: '💡', label: 'Centros Tech e Incubadoras' },
-  { icon: '🌐', label: 'Organismos Multilaterales y Asociaciones' },
-  { icon: '💻', label: 'Empresas Tech y Sponsors' },
+  {
+    title: 'Municipios y Gobiernos',
+    description: 'Acercamos innovación, tecnología y formación a comunidades de todo el país.',
+  },
+  {
+    title: 'Cámaras Empresariales e Instituciones',
+    description: 'Generamos alianzas y proyectos que fortalecen el desarrollo empresarial e institucional.',
+  },
+  {
+    title: 'Universidades y Colegios',
+    description: 'Conectamos educación, conocimiento e innovación para crear nuevas oportunidades de formación.',
+  },
+  {
+    title: 'Centros Tech e Incubadoras',
+    description: 'Potenciamos talento, proyectos y emprendimientos que impulsan el futuro tecnológico.',
+  },
+  {
+    title: 'Organismos Multilaterales y Asociaciones',
+    description: 'Articulamos cooperación y alianzas para desarrollar iniciativas de impacto nacional e internacional.',
+  },
+  {
+    title: 'Empresas Tech y Sponsors',
+    description: 'Creamos oportunidades de colaboración, visibilidad y participación en nuevas iniciativas tecnológicas.',
+  },
 ];
+
+// Eyebrow minimal: bullet cuadrado + texto tracked, sin pill/borde.
+// Local a esta sección — el resto del sitio sigue usando el pill
+// (ver SectionHeader.jsx, hoy sin uso, y el markup inline de Bloques D/E).
+function Eyebrow({ children }) {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <span className="h-1 w-1 flex-shrink-0 bg-accent" aria-hidden="true" />
+      <span className="text-xs font-semibold tracking-widest uppercase text-accent">
+        {children}
+      </span>
+    </div>
+  );
+}
 
 const managementAxes = [
   {
@@ -30,58 +61,82 @@ const managementAxes = [
 
 export default function InstitutionalSection() {
   return (
-    <section id="institucional" className="section-padding bg-dark-100 relative overflow-hidden border-t border-white/5">
+    <section id="institucional" className="section-padding bg-dark-100 relative border-t border-white/5">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-900/10 to-transparent pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Bloque A: Quiénes somos — ancho completo, título + párrafo secundario */}
+        <div className="mb-16">
+          <Eyebrow>Quiénes somos</Eyebrow>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] mb-5">
+            Una asociación que conecta{' '}
+            <span className="text-gradient">tecnología, conocimiento y comunidad</span>
+          </h2>
+          <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl">
+            ADEEMA promueve y desarrolla el impacto de la cultura del gaming y las nuevas tecnologías en la
+            sociedad. Articulamos comunidades, universidades, empresas e instituciones dentro de un mismo
+            ecosistema de innovación y gaming con el objetivo de construir capacidades para el futuro.
+          </p>
+        </div>
+      </div>
 
-        {/* Bloque A + B: Quiénes somos / Red de Articulación */}
-        <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-10 items-start mb-16">
-          {/* Bloque A - texto */}
-          <div>
-            <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent mb-4 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-              Quiénes somos
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
-              Impulsamos el ecosistema institucional,{' '}
-              <span className="text-gradient">académico y tecnológico</span>{' '}
-              de Argentina
-            </h2>
-            <div className="space-y-3 text-slate-400 leading-relaxed">
-              <p>
-                ADEEMA promueve y desarrolla el impacto de la cultura del gaming y las nuevas tecnologías en la
-                sociedad. Articulamos comunidades, universidades, empresas e instituciones dentro de un mismo
-                ecosistema de innovación y gaming con el objetivo de construir capacidades para el futuro.
-              </p>
+      {/* Bloque B: Red de articulación — banda propia en modo claro, aislada del resto (dark) */}
+      <div className="relative z-10 bg-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16">
+            {/* Columna izquierda: eyebrow + título, fija (sticky) hasta que termina la lista */}
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="h-1 w-1 flex-shrink-0 bg-primary-600" aria-hidden="true" />
+                <span className="text-xs font-semibold tracking-widest uppercase text-primary-600">
+                  Red de articulación
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+                Trabajamos junto a
+              </h2>
             </div>
-          </div>
 
-          {/* Bloque B - Red de articulación */}
-          <div>
-            <p className="text-slate-500 text-sm uppercase tracking-widest font-medium mb-6">
-              Trabajamos junto a:
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {networkPartners.map((partner) => (
-                <Card key={partner.label} className="p-4 text-center" hover>
-                  <div className="text-3xl mb-2">{partner.icon}</div>
-                  <p className="text-slate-300 text-xs font-medium leading-snug">{partner.label}</p>
-                </Card>
+            {/* Columna derecha: lista de 6 items, alto natural, sin scroll interno */}
+            <div>
+              {networkPartners.map((partner, index) => (
+                <div
+                  key={partner.title}
+                  className={`flex gap-4 py-6 ${
+                    index !== networkPartners.length - 1 ? 'border-b border-dashed border-gray-200' : ''
+                  }`}
+                >
+                  <span className="flex-shrink-0 text-sm text-primary-600">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                      {partner.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">
+                      {partner.description}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Bloque C: Alcance Federal */}
-        <div className="mb-16 rounded-2xl border border-primary-500/20 bg-primary-500/5 p-6 md:p-8 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-          <div className="text-4xl flex-shrink-0">🗺️</div>
-          <div>
-            <h3 className="text-white font-bold text-xl mb-2">Alcance Federal</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              ADEEMA opera con visión federal, llegando a comunidades e instituciones de todas las provincias.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Bloque C: Alcance Federal — bloque "por qué importa" */}
+        <div className="mb-16 mt-16">
+          <Eyebrow>Alcance Federal</Eyebrow>
+          <p className="max-w-3xl text-base md:text-lg leading-relaxed">
+            <span className="text-white font-semibold">
+              ADEEMA opera con visión federal, llegando a comunidades e instituciones de{' '}
+              <span className="text-accent">todas las provincias</span>.
+            </span>{' '}
+            <span className="text-slate-400">
               Cada programa, charla y contenido estratégico apunta a un ecosistema nacional, inclusivo y accesible.
-            </p>
-          </div>
+            </span>
+          </p>
         </div>
 
         {/* Bloque D: Misión & Visión */}

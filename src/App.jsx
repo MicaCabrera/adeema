@@ -27,7 +27,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-dark text-white">
       <Navbar />
-      <main className="overflow-x-hidden">
+      <main>
         <HeroSection />
         <Suspense fallback={<SectionsFallback />}>
           <InstitutionalSection />
