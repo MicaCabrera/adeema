@@ -1,29 +1,76 @@
+import { useEffect, useRef, useState } from 'react';
 import Button from './ui/Button';
+
+// Íconos lineales (solo stroke, sin relleno) — estilo minimal tipo la
+// referencia de sentientx.com, un ícono simple y reconocible por tarjeta.
+const icons = {
+  landmark: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21h18M4 21V10m16 11V10M3 10l9-6 9 6M6 10v6m4-6v6m4-6v6m4-6v6" />
+    </svg>
+  ),
+  briefcase: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  ),
+  cap: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l10 5-10 5L2 8l10-5z" />
+      <path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5" />
+    </svg>
+  ),
+  chip: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="6" width="12" height="12" rx="1" />
+      <path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" />
+    </svg>
+  ),
+  globe: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z" />
+    </svg>
+  ),
+  monitor: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="12" rx="1" />
+      <path d="M8 20h8M12 16v4" />
+    </svg>
+  ),
+};
 
 const networkPartners = [
   {
     title: 'Municipios y Gobiernos',
     description: 'Acercamos innovación, tecnología y formación a comunidades de todo el país.',
+    icon: icons.landmark,
   },
   {
     title: 'Cámaras Empresariales e Instituciones',
     description: 'Generamos alianzas y proyectos que fortalecen el desarrollo empresarial e institucional.',
+    icon: icons.briefcase,
   },
   {
     title: 'Universidades y Colegios',
     description: 'Conectamos educación, conocimiento e innovación para crear nuevas oportunidades de formación.',
+    icon: icons.cap,
   },
   {
     title: 'Centros Tech e Incubadoras',
     description: 'Potenciamos talento, proyectos y emprendimientos que impulsan el futuro tecnológico.',
+    icon: icons.chip,
   },
   {
     title: 'Organismos Multilaterales y Asociaciones',
     description: 'Articulamos cooperación y alianzas para desarrollar iniciativas de impacto nacional e internacional.',
+    icon: icons.globe,
   },
   {
     title: 'Empresas Tech y Sponsors',
     description: 'Creamos oportunidades de colaboración, visibilidad y participación en nuevas iniciativas tecnológicas.',
+    icon: icons.monitor,
   },
 ];
 
@@ -60,13 +107,42 @@ const managementAxes = [
 ];
 
 export default function InstitutionalSection() {
+  const partnersGridRef = useRef(null);
+  const [linesVisible, setLinesVisible] = useState(false);
+
+  // Scroll-reveal de las líneas divisorias de la grilla "Red de articulación":
+  // se dispara una sola vez al entrar en viewport (observer se desconecta al
+  // primer intersect), no vuelve a repetirse al scrollear arriba/abajo.
+  useEffect(() => {
+    const el = partnersGridRef.current;
+    if (!el) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setLinesVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section id="institucional" className="section-padding bg-dark-100 relative border-t border-white/5">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-900/10 to-transparent pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Bloque A: Quiénes somos — ancho completo, título + párrafo secundario */}
-        <div className="mb-16">
+        {/* pt-6/md:pt-8 suma sobre el pt de section-padding (56px/80px) para llegar a
+            80px/112px de aire arriba; pb-20/md:pb-28 reemplaza el mb-16 anterior para dar
+            80px/112px de aire abajo, sin tocar el py del bloque blanco de "Trabajamos junto a" */}
+        <div className="pt-6 pb-20 md:pt-8 md:pb-28">
           <Eyebrow>Quiénes somos</Eyebrow>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] mb-5">
             Una asociación que conecta{' '}
@@ -80,64 +156,61 @@ export default function InstitutionalSection() {
         </div>
       </div>
 
-      {/* Bloque B: Red de articulación — banda propia en modo claro, aislada del resto (dark) */}
-      <div className="relative z-10 bg-white py-16 md:py-24">
+      {/* Bloque B: Red de articulación — banda crema full-bleed, grilla estática
+          tipo "Traps to Avoid" de sentientx.com. Sin hover, sin sombras, sin
+          bordes redondeados: grilla continua con líneas finas tipo tabla. */}
+      <div className="relative z-10 bg-[#f7f5f0] py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16">
-            {/* Columna izquierda: eyebrow + título, fija (sticky) hasta que termina la lista */}
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="h-1 w-1 flex-shrink-0 bg-primary-600" aria-hidden="true" />
-                <span className="text-xs font-semibold tracking-widest uppercase text-primary-600">
-                  Red de articulación
-                </span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Trabajamos junto a
-              </h2>
-            </div>
+          <h2 className="mb-10 md:mb-14 text-2xl md:text-3xl font-medium tracking-tight text-[#141310]">
+            Red de articulación
+          </h2>
 
-            {/* Columna derecha: lista de 6 items, alto natural, sin scroll interno */}
-            <div>
-              {networkPartners.map((partner, index) => (
-                <div
-                  key={partner.title}
-                  className={`flex gap-4 py-6 ${
-                    index !== networkPartners.length - 1 ? 'border-b border-dashed border-gray-200' : ''
-                  }`}
-                >
-                  <span className="flex-shrink-0 text-sm text-primary-600">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
-                      {partner.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">
-                      {partner.description}
-                    </p>
-                  </div>
+          {/* El contenedor pone el borde superior + izquierdo (fijos, sin animar).
+              Cada celda dibuja su propio borde derecho + inferior como líneas que
+              se "trazan" con scroll-reveal — así nunca se duplican entre celdas,
+              sin importar cuántas columnas haya por breakpoint (2 en mobile, 3 en desktop). */}
+          <div
+            ref={partnersGridRef}
+            className="grid grid-cols-2 border-t border-l border-[#141310]/10 lg:grid-cols-3"
+          >
+            {networkPartners.map((partner, index) => (
+              <div key={partner.title} className="relative p-6 md:p-8">
+                <span className="block text-xs tabular-nums text-[#8a8579]">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-3 text-base md:text-lg font-medium text-[#141310]">
+                  {partner.title}
+                </h3>
+                <p className="mt-2 text-sm text-[#8a8579]">
+                  {partner.description}
+                </p>
+                <div className="mt-8 h-6 w-6 text-[#141310]" aria-hidden="true">
+                  {partner.icon}
                 </div>
-              ))}
-            </div>
+
+                {/* Línea derecha: escala en Y desde arriba */}
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute right-0 top-0 h-full w-px origin-top bg-[rgba(20,19,16,0.15)] transition-transform duration-700 ease-out ${
+                    linesVisible ? 'scale-y-100' : 'scale-y-0'
+                  }`}
+                  style={{ transitionDelay: `${index * 70}ms` }}
+                />
+                {/* Línea inferior: escala en X desde la izquierda, con delay extra sobre la derecha */}
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute bottom-0 left-0 h-px w-full origin-left bg-[rgba(20,19,16,0.15)] transition-transform duration-700 ease-out ${
+                    linesVisible ? 'scale-x-100' : 'scale-x-0'
+                  }`}
+                  style={{ transitionDelay: `${index * 70 + 180}ms` }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Bloque C: Alcance Federal — bloque "por qué importa" */}
-        <div className="mb-16 mt-16">
-          <Eyebrow>Alcance Federal</Eyebrow>
-          <p className="max-w-3xl text-base md:text-lg leading-relaxed">
-            <span className="text-white font-semibold">
-              ADEEMA opera con visión federal, llegando a comunidades e instituciones de{' '}
-              <span className="text-accent">todas las provincias</span>.
-            </span>{' '}
-            <span className="text-slate-400">
-              Cada programa, charla y contenido estratégico apunta a un ecosistema nacional, inclusivo y accesible.
-            </span>
-          </p>
-        </div>
 
         {/* Bloque D: Misión & Visión */}
         <div id="mision-vision" className="mb-16">
