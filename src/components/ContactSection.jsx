@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Button from './ui/Button';
+import CtaButton from './ui/CtaButton';
 
 const motivos = [
   'Alianzas y Convenios Marcos',
@@ -75,9 +75,9 @@ export default function ContactSection() {
               rows={4}
               className="w-full rounded-lg border border-white/10 bg-dark/60 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 sm:col-span-2 resize-none"
             />
-            <Button variant="primary" size="lg" as="button" type="submit" className="sm:col-span-2 justify-center">
+            <CtaButton as="button" type="submit" className="sm:col-span-2 justify-center">
               Enviar
-            </Button>
+            </CtaButton>
           </form>
         )}
       </div>

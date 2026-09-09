@@ -1,4 +1,4 @@
-import Button from './ui/Button';
+import CtaButton from './ui/CtaButton';
 
 const axes = [
   {
@@ -68,12 +68,9 @@ export default function SponsorsSection() {
               Diseñamos propuestas de colaboración y vinculación alineadas a objetivos institucionales,
               de posicionamiento y de desarrollo territorial.
             </p>
-            <Button variant="primary" size="lg" href="#contacto">
+            <CtaButton href="#contacto">
               Quiero ser aliado
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Button>
+            </CtaButton>
           </div>
         </div>
       </div>

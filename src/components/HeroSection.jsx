@@ -1,5 +1,4 @@
-import Button from './ui/Button';
-import BrandMark from './ui/BrandMark';
+import CtaButton from './ui/CtaButton';
 
 export default function HeroSection() {
   return (
@@ -15,21 +14,6 @@ export default function HeroSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl text-left">
-          <div className="mb-2 md:mb-3 flex animate-fade-in-up">
-            <BrandMark
-              size="sm"
-              badgeClassName="shadow-[0_0_45px_rgba(0,229,255,0.18)]"
-            />
-          </div>
-
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/30 rounded-full px-3 py-1.5 mb-4 md:mb-5 animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span className="text-[10px] md:text-xs font-semibold tracking-widest uppercase text-accent">
-              Asociación Argentina
-            </span>
-          </div>
-
           {/* Main title */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none mb-4 md:mb-6 animate-fade-in-up">
             <span className="text-white">ADE</span>
@@ -46,15 +30,12 @@ export default function HeroSection() {
 
           {/* CTAs */}
           <div className="flex flex-row flex-wrap items-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <Button variant="primary" size="sm" href="#institucional">
+            <CtaButton href="#institucional">
               Conocé ADEEMA
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Button>
-            <Button variant="secondary" size="sm" href="#academy">
+            </CtaButton>
+            <CtaButton variant="secondary" href="#academy">
               Explorar Academy
-            </Button>
+            </CtaButton>
           </div>
         </div>
       </div>

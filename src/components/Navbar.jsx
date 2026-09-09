@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import Button from './ui/Button';
+import CtaButton from './ui/CtaButton';
 import LangSwitcher from './ui/LangSwitcher';
 import { BRAND_ASSETS } from '../assets/brandAssets';
 
@@ -168,7 +168,7 @@ export default function Navbar() {
         <a
           href="#inicio"
           aria-label="Ir al inicio"
-          className="pointer-events-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-dark/70 backdrop-blur-lg transition-colors duration-200 hover:border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+          className="pointer-events-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-dark/70 backdrop-blur-lg transition-colors duration-200 hover:border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
         >
           <img
             src={BRAND_ASSETS.emblemNegative}
@@ -291,27 +291,22 @@ export default function Navbar() {
               }}
               className="mt-8 flex flex-col gap-4"
             >
-              <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md p-3">
+                <CtaButton
                   href="#login"
-                  className="border-0 shadow-none"
                   onClick={closeMenu}
                 >
                   Iniciar Sesión
-                </Button>
+                </CtaButton>
                 <LangSwitcher />
               </div>
-              <Button
-                variant="primary"
-                size="md"
+              <CtaButton
                 href="#comunidad"
                 className="w-full justify-center"
                 onClick={closeMenu}
               >
                 Sumate
-              </Button>
+              </CtaButton>
             </div>
           </div>
         </div>
