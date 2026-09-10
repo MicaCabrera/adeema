@@ -1,78 +1,257 @@
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CtaButton from './ui/CtaButton';
+import Eyebrow from './ui/Eyebrow';
+import { BRAND_ASSETS } from '../assets/brandAssets';
 
-const sideBlocks = [
+gsap.registerPlugin(ScrollTrigger);
+
+// Estilo ref. oci.madebybuzzworthy.com: panel sólido con textura de medio
+// tono (halftone) + lista de notas con fecha/tag/título separadas por líneas
+// finas. Colores de ADEEMA (navy/celeste) en vez del azul del sitio de
+// referencia. Placeholders — se reemplazan por fotos reales más adelante.
+const newsItems = [
   {
-    tag: 'EVENTOS',
-    title: 'Encuentros en Territorio',
-    description: 'Agenda de jornadas presenciales, activaciones de gaming social y encuentros de vinculación del ecosistema en las provincias.',
+    date: '18 Sep',
+    tag: 'Comunicados',
+    title: 'ADEEMA consolida su red de alianzas estratégicas y convenios federales.',
+    image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    tag: 'ACTIVIDADES',
-    title: 'Espacios de Innovación',
-    description: 'Convocatorias abiertas a las nuevas ADEEMA Talks, seminarios y programas de formación interactivos de la Academy.',
+    date: '10 Sep',
+    tag: 'Eventos',
+    title: 'Encuentros en Territorio: agenda de jornadas presenciales en todo el país.',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    tag: 'NOVEDADES',
-    title: 'Multimedia',
-    description: 'Lanzamientos de producciones multimedia, clips ágiles y contenidos audiovisuales exclusivos a través de ADEEMA Media.',
+    date: '02 Sep',
+    tag: 'Actividades',
+    title: 'Espacios de Innovación: nuevas convocatorias de ADEEMA Talks y la Academy.',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    date: '28 Ago',
+    tag: 'Novedades',
+    title: 'Multimedia: lanzamientos y contenidos audiovisuales exclusivos de ADEEMA Media.',
+    image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    date: '20 Ago',
+    tag: 'Prensa',
+    title: 'ADEEMA fue destacada en medios nacionales por su rol en la formación tech.',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    date: '12 Ago',
+    tag: 'Comunicados',
+    title: 'Nuevo convenio con universidades para becas de la Academy 2025.',
+    image: 'https://images.unsplash.com/photo-1614624532983-4ce03382d63d?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
 export default function NewsSection() {
+  const sectionRef = useRef(null);
+  const panelRef = useRef(null);
+  const logoRef = useRef(null);
+  const dotsRef = useRef(null);
+  const listViewportRef = useRef(null);
+  const listTrackRef = useRef(null);
+
+  const hoverCapable = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
+
+  // Mejora 1 — el logo (y, más sutil, la textura de puntos) "sigue" al mouse
+  // dentro del panel navy con inercia (gsap.quickTo), no 1:1: da sensación
+  // de profundidad en capas sin que el logo se deforme ni salga del panel.
+  useLayoutEffect(() => {
+    if (!hoverCapable) return undefined;
+    const panel = panelRef.current;
+    const logo = logoRef.current;
+    const dots = dotsRef.current;
+    if (!panel || !logo || !dots) return undefined;
+
+    const logoXTo = gsap.quickTo(logo, 'x', { duration: 0.7, ease: 'power3' });
+    const logoYTo = gsap.quickTo(logo, 'y', { duration: 0.7, ease: 'power3' });
+    const logoScaleTo = gsap.quickTo(logo, 'scale', { duration: 0.7, ease: 'power3' });
+    const dotsXTo = gsap.quickTo(dots, 'x', { duration: 0.9, ease: 'power3' });
+    const dotsYTo = gsap.quickTo(dots, 'y', { duration: 0.9, ease: 'power3' });
+
+    const handleMove = (e) => {
+      const rect = panel.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width - 0.5; // -0.5..0.5
+      const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+      logoXTo(relX * 24);
+      logoYTo(relY * 24);
+      logoScaleTo(1.05 + Math.min(Math.hypot(relX, relY), 0.7) * 0.07);
+      dotsXTo(relX * -12);
+      dotsYTo(relY * -12);
+    };
+
+    const handleLeave = () => {
+      logoXTo(0);
+      logoYTo(0);
+      logoScaleTo(1);
+      dotsXTo(0);
+      dotsYTo(0);
+    };
+
+    panel.addEventListener('mousemove', handleMove);
+    panel.addEventListener('mouseleave', handleLeave);
+    return () => {
+      panel.removeEventListener('mousemove', handleMove);
+      panel.removeEventListener('mouseleave', handleLeave);
+    };
+  }, [hoverCapable]);
+
+  // Mejora 3 — pin + scroll interno (solo desktop, >=1024px, mismo criterio
+  // que el carrusel de Media): al llegar a la sección, el scroll de la
+  // página se "captura" y mueve la lista de noticias hacia arriba/abajo
+  // dentro de su contenedor; recién al llegar a la última noticia (o a la
+  // primera, si se vuelve para atrás) se libera y la página sigue
+  // scrolleando normal. `scrub: true` (sin suavizado) para que el
+  // movimiento de la lista siga la rueda/trackpad 1 a 1, sin sensación de
+  // lag — eso es lo que se sentía "mal" en el intento anterior.
+  useLayoutEffect(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add('(min-width: 1024px)', () => {
+      const section = sectionRef.current;
+      const viewport = listViewportRef.current;
+      const track = listTrackRef.current;
+      if (!section || !viewport || !track) return undefined;
+
+      // El trigger se crea recién cuando la sección está por entrar en
+      // viewport (no al montar): la posición absoluta de #noticias depende
+      // de la altura de TODO lo que está arriba, incluido el pin de Media
+      // (que reserva su propio rango de scroll "virtual"). Crear el
+      // ScrollTrigger al montar corre el riesgo de medir esa posición antes
+      // de que el pin de Media termine de asentarse, y ScrollTrigger.refresh()
+      // no siempre recalcula bien un trigger ya creado más allá de un pin
+      // ajeno. Crearlo acá, cuando el usuario ya scrolleó todo lo anterior,
+      // evita el problema de raíz: en ese momento la posición real ya es
+      // definitiva.
+      let tween = null;
+
+      const createTween = () => {
+        if (tween) return;
+
+        const overflow = track.scrollHeight - viewport.clientHeight;
+        if (overflow <= 0) return;
+
+        tween = gsap.to(track, {
+          y: -overflow,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: `+=${overflow}`,
+            pin: true,
+            anticipatePin: 1,
+            scrub: true,
+          },
+        });
+      };
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              createTween();
+              observer.disconnect();
+            }
+          });
+        },
+        { rootMargin: '600px 0px 600px 0px' }
+      );
+      observer.observe(section);
+
+      return () => {
+        observer.disconnect();
+        if (tween) {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+        }
+      };
+    });
+
+    return () => mm.kill();
+  }, []);
+
   return (
-    <section id="noticias" className="section-padding bg-dark relative">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
-
+    <section id="noticias" ref={sectionRef} className="section-padding bg-dark relative border-y border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent mb-4 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-            Actualidad
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
-            Actualidad & Prensa
-          </h2>
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed mx-auto">
-            El registro de nuestra actividad. Seguí las novedades, comunicados institucionales y eventos que
-            marcan la agenda del ecosistema.
-          </p>
-        </div>
+        <Eyebrow className="mb-4">Actualidad</Eyebrow>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight mb-4">
+          Actualidad & Prensa
+        </h2>
+        <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl mb-10 md:mb-14">
+          El registro de nuestra actividad. Seguí las novedades, comunicados institucionales y eventos que
+          marcan la agenda del ecosistema.
+        </p>
 
-        {/* Grilla 65/35 */}
-        <div className="grid lg:grid-cols-[1.85fr_1fr] gap-8 mb-10">
-          {/* Columna izquierda destacada */}
-          <div className="rounded-2xl border border-primary-500/20 bg-dark-200/50 p-8 md:p-10 flex flex-col justify-end min-h-[320px] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-transparent to-transparent pointer-events-none" />
-            <div className="relative z-10">
-              <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-300 mb-4 w-fit">
-                Comunicados
-              </span>
-              <h3 className="text-white font-bold text-2xl md:text-3xl leading-snug mb-4">
-                ADEEMA consolida su red de alianzas estratégicas y convenios federales.
-              </h3>
-              <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl">
-                Firma de acuerdos marco con universidades, cámaras y organismos para impulsar la innovación
-                aplicada, la formación y el desarrollo tecnológico en territorio.
-              </p>
+        <div className="grid overflow-hidden rounded-medium border border-white/10 lg:grid-cols-[0.85fr_1.6fr]">
+          {/* Panel sólido con textura halftone — puramente gráfico, ancla
+              visual de la grilla. Logo y textura reaccionan al mouse
+              (mejora 1); permanece fijo durante el scroll interno de la
+              lista (mejora 3). */}
+          <div
+            ref={panelRef}
+            className="relative min-h-[220px] overflow-hidden bg-surface lg:h-[480px] lg:min-h-0"
+          >
+            <div ref={dotsRef} aria-hidden="true" className="halftone-dots absolute -inset-4 text-brand-500" />
+            <img
+              ref={logoRef}
+              src={BRAND_ASSETS.emblemNegative}
+              alt=""
+              aria-hidden="true"
+              className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 object-contain opacity-20 will-change-transform"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Lista de notas: fecha + tag + título, separadas por líneas
+              finas. En hover, cada fila revela una foto a su propio tamaño
+              con overlay navy (mejora 2). En desktop, la lista scrollea
+              dentro de este contenedor de alto fijo (mejora 3); en mobile
+              queda con su alto natural y scroll normal de página. */}
+          <div ref={listViewportRef} className="relative bg-white lg:h-[480px] lg:overflow-hidden">
+            <div ref={listTrackRef} className="flex flex-col divide-y divide-surface/15 will-change-transform">
+              {newsItems.map((item) => (
+                <div
+                  key={item.title}
+                  className="group relative flex flex-col gap-1 overflow-hidden p-6 sm:flex-row sm:items-baseline sm:gap-6 md:p-8"
+                >
+                  <img
+                    src={item.image}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition-[opacity,transform] duration-300 ease-out group-hover:scale-100 group-hover:opacity-100"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-surface/0 transition-colors duration-300 ease-out group-hover:bg-surface/75"
+                  />
+
+                  <span className="relative z-10 shrink-0 text-xs font-semibold tabular-nums text-surface/40 transition-colors duration-300 group-hover:text-white/70 sm:w-14">
+                    {item.date}
+                  </span>
+                  <div className="relative z-10">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-brand-500">
+                      {item.tag}
+                    </span>
+                    <h4 className="mt-1 text-base font-medium leading-snug text-surface transition-colors duration-300 group-hover:text-white sm:text-lg">
+                      {item.title}
+                    </h4>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Columna derecha — lista de texto puro */}
-          <div className="flex flex-col divide-y divide-white/10 border border-white/10 rounded-2xl overflow-hidden">
-            {sideBlocks.map((block) => (
-              <div key={block.tag} className="p-6 flex-1">
-                <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-                  {block.tag}
-                </span>
-                <h4 className="text-white font-semibold text-base mt-2 mb-2">{block.title}</h4>
-                <p className="text-slate-400 text-sm leading-relaxed">{block.description}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* CTA único */}
-        <div className="text-center">
+        <div className="mt-10 text-center">
           <CtaButton as="button" type="button">
             Ver todas las novedades
           </CtaButton>

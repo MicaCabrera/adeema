@@ -37,7 +37,7 @@ export default function AcademySection() {
         <Eyebrow className="mb-4">Educación</Eyebrow>
 
         <div className="mb-10 md:mb-14 flex items-center justify-between gap-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight">
             ADEEMA Academy
           </h2>
           <CtaButton href="https://academy.adeema.org.ar">Ir a la Academia</CtaButton>
@@ -57,17 +57,17 @@ export default function AcademySection() {
             <a
               key={path.title}
               href="https://academy.adeema.org.ar"
-              className="block border border-white/5 bg-dark-200/50"
+              className="block overflow-hidden rounded-medium border border-white/5 bg-dark-200/50"
             >
-              <div className="flex h-40 flex-col justify-end bg-[#043766] p-5 md:h-48 md:p-6">
+              <div className="flex h-40 flex-col justify-end bg-surface p-5 md:h-48 md:p-6">
                 <h3 className="text-base md:text-lg font-medium text-white">{path.title}</h3>
               </div>
               <div className="p-5 md:p-6">
                 <div className="mb-4 flex items-center gap-2">
-                  <span className="border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                  <span className="rounded-small border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                     Academy
                   </span>
-                  <span className="border border-white/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-slate-400">
+                  <span className="rounded-small border border-white/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-slate-400">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
@@ -83,7 +83,7 @@ export default function AcademySection() {
                   <span className="flex w-0 items-center overflow-hidden whitespace-nowrap bg-white px-0 text-xs font-semibold uppercase tracking-widest text-dark transition-all duration-300 ease-in-out group-hover/btn:w-16 group-hover/btn:px-4">
                     Ver
                   </span>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-[#55B4EB] text-white">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-small bg-brand-500 text-white">
                     <ArrowIcon className="h-4 w-4" />
                   </span>
                 </span>

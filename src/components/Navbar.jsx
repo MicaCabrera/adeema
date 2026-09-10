@@ -9,7 +9,6 @@ const navLinks = [
   { label: 'Academy', href: '#academy' },
   { label: 'Media', href: '#media' },
   { label: 'Comunidad', href: '#comunidad' },
-  { label: 'Convenios & Sponsors', shortLabel: 'Alianzas', href: '#alianzas' },
   { label: 'Noticias', href: '#noticias' },
   { label: 'Contacto', href: '#contacto' },
 ];

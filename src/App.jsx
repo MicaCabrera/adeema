@@ -7,7 +7,6 @@ const InstitutionalSection = lazy(() => import('./components/InstitutionalSectio
 const AcademySection = lazy(() => import('./components/AcademySection'));
 const MediaSection = lazy(() => import('./components/MediaSection'));
 const FanSection = lazy(() => import('./components/FanSection'));
-const SponsorsSection = lazy(() => import('./components/SponsorsSection'));
 const NewsSection = lazy(() => import('./components/NewsSection'));
 const ContactSection = lazy(() => import('./components/ContactSection'));
 
@@ -34,7 +33,6 @@ export default function App() {
           <AcademySection />
           <MediaSection />
           <FanSection />
-          <SponsorsSection />
           <NewsSection />
           <ContactSection />
         </Suspense>

@@ -26,7 +26,7 @@ export default function ContactSection() {
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent mb-4 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
             Contacto
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight mb-4">
             Vinculación Institucional
           </h2>
           <p className="text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed mx-auto">

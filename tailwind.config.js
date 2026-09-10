@@ -23,33 +23,68 @@ export default {
           DEFAULT: '#00e5ff',
           dark: '#00b8d4',
         },
+        // Sistema de fondos en cascada (ref. williamsgptech.com), con los
+        // colores de ADEEMA: dark-900 (DEFAULT) es el fondo base de toda la
+        // página — más oscuro que antes (#0a0e1a) para dar más contraste
+        // contra el blanco. dark-100/200/300/400 quedan igual, son pasos
+        // intermedios ya usados en distintos componentes.
         dark: {
-          DEFAULT: '#0a0e1a',
+          DEFAULT: '#020D1A',
           100: '#0f1525',
           200: '#141c32',
           300: '#1c2640',
           400: '#243050',
         },
+        // "surface" (dark-800 equivalente): el navy que antes hacía de
+        // fondo (#043766) pasa a este rol — el tono para cards/paneles que
+        // necesitan distinguirse del fondo base, no el fondo de página.
         surface: {
-          DEFAULT: '#141c32',
+          DEFAULT: '#043766',
           light: '#1c2640',
+        },
+        // Escala del acento de marca (brand-500 = #55B4EB, sin cambios)
+        // generada con color-mix() en vez de hardcodear cada tinte/sombra —
+        // mismo patrón técnico que la escala brand-100..900 de Williams.
+        brand: {
+          100: 'color-mix(in srgb, #55B4EB, white 80%)',
+          200: 'color-mix(in srgb, #55B4EB, white 60%)',
+          300: 'color-mix(in srgb, #55B4EB, white 40%)',
+          400: 'color-mix(in srgb, #55B4EB, white 20%)',
+          500: '#55B4EB',
+          600: 'color-mix(in srgb, #55B4EB, black 15%)',
+          700: 'color-mix(in srgb, #55B4EB, black 30%)',
+          800: 'color-mix(in srgb, #55B4EB, black 45%)',
+          900: 'color-mix(in srgb, #55B4EB, black 60%)',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Inter', 'system-ui', 'sans-serif'],
       },
-      // Regla de diseño: todo border-radius del sitio debe ser múltiplo de
-      // 8px. `lg` (8px), `2xl` (16px) y `3xl` (24px) ya cumplían en el
-      // default de Tailwind y quedan igual; acá solo se remapean los pasos
-      // que no cumplían (sm/DEFAULT/md/xl) para que ninguna clase estándar
-      // pueda generar un radio fuera de la regla. `full` queda exento
-      // (9999px, no es un valor fijo en px).
+      // Sistema de radios (ref. williamsgptech.com): reemplaza la regla
+      // anterior de "múltiplo de 8px" (que en la práctica se usaba como
+      // "esquinas rectas" en varios componentes). Radios chicos en vez de
+      // 0px o de los valores grandes por defecto de Tailwind:
+      // - small (4px): inputs, botones, tags.
+      // - medium (~6px): cards/paneles.
+      // - round (100vw): elementos circulares.
+      // Los nombres estándar de Tailwind (sm/DEFAULT/lg/xl/2xl/3xl) se
+      // remapean a small o medium para que TODO el sitio (incluidos
+      // componentes no tocados en este cambio, como Navbar/Footer/Contact)
+      // quede dentro del nuevo sistema sin tener que tocar cada archivo.
       borderRadius: {
-        sm: '8px',
-        DEFAULT: '8px',
-        md: '8px',
-        xl: '16px',
+        none: '0px',
+        small: '0.25rem',
+        DEFAULT: '0.25rem',
+        sm: '0.25rem',
+        medium: '0.375rem',
+        md: '0.375rem',
+        lg: '0.375rem',
+        xl: '0.375rem',
+        '2xl': '0.375rem',
+        '3xl': '0.375rem',
+        round: '100vw',
+        full: '9999px',
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',

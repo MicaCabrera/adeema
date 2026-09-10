@@ -149,7 +149,7 @@ function MissionVisionCard({ card, isActive, onEnter, onLeave, onClick }) {
           isActive ? 'scale-95 opacity-0' : 'delay-150 scale-100 opacity-100',
         ].join(' ')}
       >
-        <h3 className="text-5xl font-bold tracking-tight text-white md:text-6xl">{card.headline}</h3>
+        <h3 className="text-5xl font-medium tracking-tight text-white md:text-6xl">{card.headline}</h3>
       </div>
 
       {/* Contenido completo — estado activo. Padding horizontal alineado al
@@ -231,12 +231,14 @@ export default function InstitutionalSection() {
   }, []);
 
   return (
-    <section id="institucional" className="pb-14 md:pb-20 bg-dark-100 relative border-t border-white/5">
+    <section id="institucional" className="bg-dark-100 relative border-t border-white/5">
       {/* Sin padding-top (a diferencia del resto de secciones, que usan la
           clase section-padding): con top:0 la banda blanca de "Quiénes
-          somos" queda pegada al borde superior de la sección, sin la franja
-          de bg-dark-100 (+ el degradé de abajo) que quedaba visible antes.
-          pb-14/md:pb-20 replica el padding-bottom que daba section-padding. */}
+          somos" queda pegada al borde superior de la sección. Tampoco hay
+          padding-bottom: el bloque de Misión & Visión (full-bleed, 100svh)
+          es el último elemento y tiene que tocar el borde inferior real de
+          la sección — un padding-bottom acá dejaba una franja de bg-dark-100
+          visible entre ese bloque y el bg-dark de la sección siguiente. */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-900/10 to-transparent pointer-events-none" />
 
       {/* Bloque A: Quiénes somos — banda blanca full-bleed (única excepción
@@ -249,7 +251,7 @@ export default function InstitutionalSection() {
               Tamaño de heading unificado con el resto del sitio (mismo H2 que
               SectionHeader/Contact/News/Sponsors/Think Tank), sin mezcla de
               colores dentro del título. */}
-          <h2 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-bold text-[#141310] leading-tight mb-4">
+          <h2 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-medium text-[#141310] leading-tight mb-4">
             Una asociación que conecta tecnología, conocimiento y comunidad
           </h2>
           <p className="text-slate-600 text-sm md:text-base leading-relaxed max-w-2xl">
@@ -268,7 +270,7 @@ export default function InstitutionalSection() {
           siempre, sin esquinas redondeadas. */}
       <div className="relative z-10 border-y border-white/5 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight">
             Red de articulación
           </h2>
           <p className="mb-10 mt-3 max-w-2xl text-sm md:text-base text-slate-400 md:mb-14">
@@ -295,7 +297,7 @@ export default function InstitutionalSection() {
                   {/* Degradé de hover — sutil, #043766 a baja opacidad, detrás del contenido */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#043766]/0 via-[#043766]/40 to-[#043766]/0 opacity-0 transition-opacity duration-300 group-hover/feature:opacity-100"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-b from-surface/0 via-surface/40 to-surface/0 opacity-0 transition-opacity duration-300 group-hover/feature:opacity-100"
                   />
 
                   <div className="relative z-10 mb-8 h-6 w-6 text-white" aria-hidden="true">

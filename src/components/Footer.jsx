@@ -9,7 +9,6 @@ const footerLinks = {
   Ecosistema: [
     { label: 'ADEEMA Media', href: '#media' },
     { label: 'Comunidad / Área FAN', href: '#comunidad' },
-    { label: 'Convenios & Sponsors', href: '#alianzas' },
   ],
   Novedades: [
     { label: 'Noticias', href: '#noticias' },

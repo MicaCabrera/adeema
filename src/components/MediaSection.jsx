@@ -47,8 +47,8 @@ function ArrowIcon({ className }) {
 
 // Flecha de navegación del carrusel: mismo lenguaje visual que el cuadrado
 // celeste del CtaButton global (fondo #55B4EB, flecha blanca, hover con la
-// flecha escapando y el emblema ADEEMA entrando), pero sin border-radius —
-// esta sección va con esquinas rectas en todo.
+// flecha escapando y el emblema ADEEMA entrando), con el radio chico del
+// sistema (rounded-small) en vez de esquinas rectas.
 function CarouselArrow({ direction, onClick, disabled }) {
   return (
     <button
@@ -57,7 +57,7 @@ function CarouselArrow({ direction, onClick, disabled }) {
       disabled={disabled}
       aria-label={direction === 'prev' ? 'Anterior' : 'Siguiente'}
       className={[
-        'group relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden bg-[#55B4EB] transition-opacity duration-300 md:h-12 md:w-12',
+        'group relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-small bg-brand-500 transition-opacity duration-300 md:h-12 md:w-12',
         disabled ? 'pointer-events-none opacity-30' : 'opacity-100',
       ].join(' ')}
     >
@@ -360,7 +360,7 @@ export default function MediaSection() {
     <section
       ref={sectionRef}
       id="media"
-      className="relative overflow-hidden bg-white border-y border-[#043766]/10 py-14 md:py-20 lg:h-screen"
+      className="relative overflow-hidden bg-white border-y border-surface/10 py-14 md:py-20 lg:h-screen"
     >
       <div ref={wrapperRef} className="relative z-10 flex h-full flex-col lg:justify-center">
         <div ref={headerRef} className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
@@ -368,11 +368,11 @@ export default function MediaSection() {
               carrusel, junto a las flechas). */}
           <Eyebrow className="mb-4" tone="brand">Media Hub</Eyebrow>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#043766] leading-tight mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-surface leading-tight mb-6">
             ADEEMA Media
           </h2>
 
-          <p className="text-[#043766]/70 text-sm md:text-base leading-relaxed max-w-2xl mb-8 lg:mb-10">
+          <p className="text-surface/70 text-sm md:text-base leading-relaxed max-w-2xl mb-8 lg:mb-10">
             Conectando audiencias a través de contenidos estratégicos, streaming y producciones audiovisuales
             sobre innovación y cultura del gaming.
           </p>
@@ -409,7 +409,7 @@ export default function MediaSection() {
                       // real disponible entre el header y la fila de
                       // flechas, así la card es grande pero nunca tapa esa
                       // fila ni se corta en ventanas más bajas.
-                      'group relative aspect-[4/5] w-[82%] shrink-0 overflow-hidden transition-[opacity,transform] duration-500 ease-out sm:aspect-[16/10] sm:w-[72%] lg:w-[clamp(640px,68vw,1500px)] lg:aspect-auto',
+                      'group relative aspect-[4/5] w-[82%] shrink-0 overflow-hidden rounded-medium transition-[opacity,transform] duration-500 ease-out sm:aspect-[16/10] sm:w-[72%] lg:w-[clamp(640px,68vw,1500px)] lg:aspect-auto',
                       isActive ? 'scale-100 opacity-100' : 'scale-[0.96] opacity-60',
                     ].join(' ')}
                   >
@@ -427,7 +427,7 @@ export default function MediaSection() {
                     </div>
 
                     {/* Overlay: degradé oscuro #043766 de abajo hacia arriba, para legibilidad */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#043766]/90 via-[#043766]/30 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/30 to-transparent" />
 
                     <div
                       ref={(el) => {
@@ -462,7 +462,7 @@ export default function MediaSection() {
         <div
           ref={cursorRef}
           aria-hidden="true"
-          className="pointer-events-none fixed left-0 top-0 z-50 flex h-14 w-14 scale-[0.6] items-center justify-center bg-[#55B4EB] text-[10px] font-semibold uppercase tracking-widest text-white opacity-0"
+          className="pointer-events-none fixed left-0 top-0 z-50 flex h-14 w-14 scale-[0.6] items-center justify-center rounded-round bg-brand-500 text-[10px] font-semibold uppercase tracking-widest text-white opacity-0"
         >
           Drag
         </div>
