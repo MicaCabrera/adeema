@@ -232,28 +232,48 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Botón flotante mobile / tablet (<1280px) — abre el menú full-screen */}
-      <button
-        type="button"
-        className="xl:hidden fixed bottom-6 right-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-dark/80 backdrop-blur-lg text-slate-200 shadow-xl shadow-black/30 transition-colors duration-300 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-        onClick={() => setMenuOpen((v) => !v)}
-        aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-        aria-expanded={menuOpen}
-        aria-controls="mobile-menu"
-      >
-        <span className="relative block h-4 w-5">
-          <span
-            className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-current transition-transform duration-300 ease-out ${
-              menuOpen ? 'translate-y-[7px] rotate-45' : ''
-            }`}
+      {/* Navbar mobile / tablet (<1280px): barra fija arriba, logo a la
+          izquierda y botón hamburguesa a la derecha — mismo lugar que ocupan
+          el logo y las acciones en el dock de desktop, no flotando sobre el
+          contenido de la página. */}
+      <div className="xl:hidden fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/10 bg-dark/80 px-4 py-3 backdrop-blur-lg sm:px-6">
+        <a
+          href="#inicio"
+          aria-label="Ir al inicio"
+          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-dark/70 transition-colors duration-200 hover:border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+        >
+          <img
+            src={BRAND_ASSETS.emblemNegative}
+            alt="ADEEMA"
+            className="h-6 w-6 object-contain"
+            loading="eager"
+            decoding="async"
+            referrerPolicy="no-referrer"
           />
-          <span
-            className={`absolute left-0 bottom-0 h-0.5 w-5 rounded-full bg-current transition-transform duration-300 ease-out ${
-              menuOpen ? '-translate-y-[7px] -rotate-45' : ''
-            }`}
-          />
-        </span>
-      </button>
+        </a>
+
+        <button
+          type="button"
+          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-dark/70 text-slate-200 transition-colors duration-300 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+        >
+          <span className="relative block h-4 w-5">
+            <span
+              className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-current transition-transform duration-300 ease-out ${
+                menuOpen ? 'translate-y-[7px] rotate-45' : ''
+              }`}
+            />
+            <span
+              className={`absolute left-0 bottom-0 h-0.5 w-5 rounded-full bg-current transition-transform duration-300 ease-out ${
+                menuOpen ? '-translate-y-[7px] -rotate-45' : ''
+              }`}
+            />
+          </span>
+        </button>
+      </div>
 
       {/* Menú full-screen mobile / tablet (<1280px) */}
       {menuRendered && (

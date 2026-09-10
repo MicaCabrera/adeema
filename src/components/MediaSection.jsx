@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import CtaButton from './ui/CtaButton';
 import Eyebrow from './ui/Eyebrow';
 import { BRAND_ASSETS } from '../assets/brandAssets';
 
@@ -74,6 +73,9 @@ function CarouselArrow({ direction, onClick, disabled }) {
 
 export default function MediaSection() {
   const sectionRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const headerRef = useRef(null);
+  const navRowRef = useRef(null);
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
   const cardRefs = useRef([]);
@@ -99,6 +101,61 @@ export default function MediaSection() {
     if (!textEl) return;
     gsap.fromTo(textEl, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
   }, [activeIndex]);
+
+  // Alto de las cards en desktop: se mide el alto real disponible dentro
+  // del pin (wrapper con h-full, altura fija por CSS e independiente del
+  // contenido) menos el header y la fila de flechas (ninguno de los dos
+  // depende del alto de la card). El resultado se clampea entre un piso de
+  // último recurso y un techo — pero NUNCA se fuerza por encima de lo que
+  // realmente entra: en notebook (1366-1440) la ventana real suele ser más
+  // baja que el preview del editor, y forzar un piso alto cortaba la card o
+  // tapaba las flechas. El techo (650px) es alto a propósito: en notebook
+  // el alto disponible real ya queda muy por debajo de eso (no cambia nada
+  // ahí), pero en desktop grande, donde SÍ sobra alto disponible, deja que
+  // la card seguir creciendo en vez de quedar anclada a un tope chico. El
+  // ancho (ver className de la card) ya escala con clamp() + vw.
+  useLayoutEffect(() => {
+    const FLOOR_HEIGHT = 260; // último recurso en ventanas extremadamente bajas
+    const MAX_HEIGHT = 650; // techo alto: en notebook no se llega a usar, en desktop grande sí
+    const GAP_BEFORE_ROW = 24; // mt-6 de la fila de flechas
+
+    const applyCardHeight = () => {
+      if (window.innerWidth < 1024) {
+        cardRefs.current.forEach((el) => {
+          if (el) el.style.height = '';
+        });
+        return;
+      }
+
+      const wrapperEl = wrapperRef.current;
+      const headerEl = headerRef.current;
+      const navEl = navRowRef.current;
+      if (!wrapperEl || !headerEl || !navEl) return;
+
+      const available = wrapperEl.clientHeight - headerEl.offsetHeight - navEl.offsetHeight - GAP_BEFORE_ROW;
+      const height = Math.max(FLOOR_HEIGHT, Math.min(MAX_HEIGHT, available));
+
+      cardRefs.current.forEach((el) => {
+        if (el) el.style.height = `${height}px`;
+      });
+    };
+
+    applyCardHeight();
+    window.addEventListener('resize', applyCardHeight);
+
+    const onLoad = () => {
+      applyCardHeight();
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('load', onLoad);
+    const loadTimeout = setTimeout(onLoad, 600);
+
+    return () => {
+      window.removeEventListener('resize', applyCardHeight);
+      window.removeEventListener('load', onLoad);
+      clearTimeout(loadTimeout);
+    };
+  }, []);
 
   const getCardStep = () => (cardRefs.current[0]?.offsetWidth || 0) + GAP;
   const getSnaps = () => mediaItems.map((_, i) => -(i * getCardStep()));
@@ -255,7 +312,19 @@ export default function MediaSection() {
       };
     });
 
-    return () => mm.kill();
+    // Refresh de seguridad: si alguna sección lazy-loaded arriba (Academy)
+    // termina de montar/medir después de que este ScrollTrigger ya calculó
+    // su `start`, ese valor queda desactualizado y el pin se desalinea del
+    // borde real de la sección. `load` cubre imágenes/fuentes tardías.
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('load', refresh);
+    const refreshTimeout = setTimeout(refresh, 600);
+
+    return () => {
+      mm.kill();
+      window.removeEventListener('load', refresh);
+      clearTimeout(refreshTimeout);
+    };
   }, []);
 
   // Cursor custom (solo desktop/hover): reemplaza el cursor nativo dentro
@@ -291,19 +360,19 @@ export default function MediaSection() {
     <section
       ref={sectionRef}
       id="media"
-      className="relative bg-dark-100 border-y border-white/5 py-14 md:py-20 lg:h-screen lg:py-12"
+      className="relative overflow-hidden bg-white border-y border-[#043766]/10 py-14 md:py-20 lg:h-screen"
     >
-      <div className="relative z-10 flex h-full flex-col lg:justify-center">
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+      <div ref={wrapperRef} className="relative z-10 flex h-full flex-col lg:justify-center">
+        <div ref={headerRef} className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
           {/* Header: eyebrow + título solo (el CTA ahora va abajo del
               carrusel, junto a las flechas). */}
-          <Eyebrow className="mb-4">Media Hub</Eyebrow>
+          <Eyebrow className="mb-4" tone="brand">Media Hub</Eyebrow>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#043766] leading-tight mb-6">
             ADEEMA Media
           </h2>
 
-          <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl mb-8 lg:mb-10">
+          <p className="text-[#043766]/70 text-sm md:text-base leading-relaxed max-w-2xl mb-8 lg:mb-10">
             Conectando audiencias a través de contenidos estratégicos, streaming y producciones audiovisuales
             sobre innovación y cultura del gaming.
           </p>
@@ -328,7 +397,19 @@ export default function MediaSection() {
                       cardRefs.current[index] = el;
                     }}
                     className={[
-                      'group relative aspect-[4/5] w-[82%] shrink-0 overflow-hidden transition-[opacity,transform] duration-500 ease-out sm:aspect-[16/10] sm:w-[72%] lg:w-[62%] lg:aspect-[16/9]',
+                      // Ancho en desktop con clamp(): escala de forma
+                      // fluida con el viewport (68vw) en vez de quedar fijo,
+                      // con un piso (640px, ~lg mínimo) y un techo (1500px,
+                      // para que no sea gigante en 4K/ultrawide). A 1366-1440
+                      // (notebook) da prácticamente el mismo ancho que el
+                      // 70% fijo anterior; en desktop grande sigue creciendo.
+                      // Deja ver la mitad de la siguiente card (peek).
+                      // La ALTURA no se fija por CSS sino que se calcula en
+                      // JS (ver useLayoutEffect más abajo) a partir del alto
+                      // real disponible entre el header y la fila de
+                      // flechas, así la card es grande pero nunca tapa esa
+                      // fila ni se corta en ventanas más bajas.
+                      'group relative aspect-[4/5] w-[82%] shrink-0 overflow-hidden transition-[opacity,transform] duration-500 ease-out sm:aspect-[16/10] sm:w-[72%] lg:w-[clamp(640px,68vw,1500px)] lg:aspect-auto',
                       isActive ? 'scale-100 opacity-100' : 'scale-[0.96] opacity-60',
                     ].join(' ')}
                   >
@@ -363,17 +444,15 @@ export default function MediaSection() {
             </div>
           </div>
 
-          {/* Flechas prev/next + CTA, ambos abajo del carrusel */}
-          <div className="mt-6 flex items-center justify-between gap-4 pr-4 sm:pr-6 lg:pr-8">
-            <div className="flex items-center gap-3">
-              <CarouselArrow direction="prev" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} />
-              <CarouselArrow
-                direction="next"
-                onClick={() => goTo(activeIndex + 1)}
-                disabled={activeIndex === mediaItems.length - 1}
-              />
-            </div>
-            <CtaButton href="/media">Ver Transmisiones</CtaButton>
+          {/* Flechas prev/next — único contenido de la fila de abajo (el CTA
+              se eliminó de esta fila). */}
+          <div ref={navRowRef} className="mt-6 flex items-center gap-3">
+            <CarouselArrow direction="prev" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} />
+            <CarouselArrow
+              direction="next"
+              onClick={() => goTo(activeIndex + 1)}
+              disabled={activeIndex === mediaItems.length - 1}
+            />
           </div>
         </div>
       </div>

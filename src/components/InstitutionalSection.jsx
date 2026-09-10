@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import CtaButton from './ui/CtaButton';
-import Eyebrow from './ui/Eyebrow';
 
 // Íconos lineales (solo stroke, sin relleno) — estilo minimal tipo la
 // referencia de sentientx.com, un ícono simple y reconocible por tarjeta.
@@ -72,25 +70,6 @@ const networkPartners = [
     title: 'Empresas Tech y Sponsors',
     description: 'Creamos oportunidades de colaboración, visibilidad y participación en nuevas iniciativas tecnológicas.',
     icon: icons.monitor,
-  },
-];
-
-// El CTA "Explorar" ahora es el componente compartido ui/CtaButton (mismo
-// estilo/animación en todos los botones del sitio).
-
-// Think Tank — índice editorial de líneas estratégicas (sin cards, sin íconos).
-const managementAxes = [
-  {
-    title: 'Claustro de Innovación y Futuro',
-    description: 'Espacio de pensamiento y análisis sobre el porvenir social, educativo y tecnológico.',
-  },
-  {
-    title: 'Informes, Estudios y Contenido Estratégico',
-    description: 'Publicaciones y análisis sectoriales sobre la cultura tecnológica y las nuevas generaciones.',
-  },
-  {
-    title: 'Convenios y Articulaciones Institucionales',
-    description: 'Alianzas que consolidan nuestro marco institucional y amplían el impacto del ecosistema.',
   },
 ];
 
@@ -208,13 +187,12 @@ export default function InstitutionalSection() {
   const partnersGridRef = useRef(null);
   const [linesVisible, setLinesVisible] = useState(false);
   const [activeMissionVision, setActiveMissionVision] = useState(null);
-  const [activeAxis, setActiveAxis] = useState(null);
 
-  // Hover (desktop) vs. tap (touch/mobile), compartido por Misión/Visión y
-  // Think Tank: en dispositivos con hover real, el hover maneja todo el
-  // estado; el click no hace nada (si no, un click mientras se está
-  // hovereando colapsaría la card). En touch, el hover nunca dispara, así
-  // que el tap sí togglea el estado activo.
+  // Hover (desktop) vs. tap (touch/mobile) para Misión/Visión: en
+  // dispositivos con hover real, el hover maneja todo el estado; el click
+  // no hace nada (si no, un click mientras se está hovereando colapsaría la
+  // card). En touch, el hover nunca dispara, así que el tap sí togglea el
+  // estado activo.
   const supportsHover = () =>
     typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
 
@@ -226,19 +204,6 @@ export default function InstitutionalSection() {
   };
   const handleMissionVisionClick = (key) => {
     if (!supportsHover()) setActiveMissionVision((prev) => (prev === key ? null : key));
-  };
-
-  // Think Tank: en reposo ningún item tiene relleno. El hover (desktop)
-  // activa el item bajo el cursor y vuelve a reposo al salir. En touch no
-  // hay hover, así que el tap fija/togglea el activo de forma persistente.
-  const handleAxisEnter = (index) => {
-    if (supportsHover()) setActiveAxis(index);
-  };
-  const handleAxisLeave = () => {
-    if (supportsHover()) setActiveAxis(null);
-  };
-  const handleAxisClick = (index) => {
-    if (!supportsHover()) setActiveAxis((prev) => (prev === index ? null : index));
   };
 
   // Scroll-reveal de las líneas divisorias de la grilla "Red de articulación":
@@ -401,130 +366,6 @@ export default function InstitutionalSection() {
               onClick={() => handleMissionVisionClick(card.key)}
             />
           ))}
-        </div>
-      </div>
-
-      {/* Bloque E: Think Tank — mismo patrón de dos cuadrados que Misión y
-          Visión (dos columnas grandes lado a lado): izquierdo con título +
-          lista de líneas estratégicas, derecho con el CTA. Sin divisor entre
-          columnas. Full-bleed a propósito, igual que el bloque de Misión y Visión. */}
-      <div id="think-tank" className="relative z-10 bg-dark-100">
-        <div className="flex w-full flex-col lg:h-[100svh] lg:flex-row">
-          {/* Cuadrado izquierdo: título arriba, lista de 3 items compacta y
-              pegada al margen inferior */}
-          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col justify-between overflow-hidden px-4 py-16 sm:px-6 md:py-20 lg:h-full lg:px-8 lg:py-16">
-            <div>
-              <Eyebrow className="mb-4">Think Tank</Eyebrow>
-              {/* Mismo tamaño/fuente de heading que el resto del sitio (ver
-                  ui/SectionHeader.jsx y Contact/News/Sponsors), sin tamaño custom. */}
-              <h2 className="max-w-xl text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                Ideas que construyen el futuro.
-              </h2>
-            </div>
-
-            {/* Lista de 3 items — más chica que antes, pegada al margen inferior.
-                Separador solo ENTRE items: border-b en todos menos el último,
-                sin border-t en el contenedor (evita la línea arriba del primero). */}
-            <div>
-              {managementAxes.map((axis, index) => {
-                const isActive = activeAxis === index;
-                const isLast = index === managementAxes.length - 1;
-
-                return (
-                  <div
-                    key={axis.title}
-                    className={[
-                      'relative cursor-pointer overflow-hidden',
-                      isLast ? '' : 'border-b border-white/15',
-                    ].join(' ')}
-                    onMouseEnter={() => handleAxisEnter(index)}
-                    onMouseLeave={handleAxisLeave}
-                    onClick={() => handleAxisClick(index)}
-                  >
-                    {/* Relleno tipo barra de progreso: crece desde el borde
-                        izquierdo (scaleX, origin-left) hasta cubrir el 100%
-                        del ancho del item — sin border-radius. */}
-                    <span
-                      aria-hidden="true"
-                      className={[
-                        'absolute inset-y-0 left-0 w-full origin-left bg-[#043766] transition-transform duration-300 ease-out',
-                        isActive ? 'scale-x-100' : 'scale-x-0',
-                      ].join(' ')}
-                    />
-
-                    <div className="relative flex items-center justify-between gap-4 px-4 py-3 md:px-5 md:py-4">
-                      <span
-                        className={[
-                          'font-bold tracking-tight transition-[transform,color] duration-300 ease-out',
-                          isActive ? 'translate-x-2 text-white' : 'translate-x-0 text-slate-300',
-                          'text-sm md:text-base',
-                        ].join(' ')}
-                      >
-                        {axis.title}
-                      </span>
-                      <span
-                        className={[
-                          'flex shrink-0 items-center gap-1.5 text-xs font-medium tabular-nums tracking-wide transition-[transform,color] duration-300 ease-out',
-                          isActive ? '-translate-x-2 text-[#55B4EB]/70' : 'translate-x-0 text-slate-500',
-                        ].join(' ')}
-                      >
-                        <span aria-hidden="true">‹</span>
-                        {String(index + 1).padStart(2, '0')}
-                        <span aria-hidden="true">›</span>
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Cuadrado derecho: mismo esqueleto que el izquierdo (título +
-              filas invisibles) para que el CTA quede exactamente a la altura
-              de la fila "03 Convenios y Articulaciones Institucionales";
-              alineado a la izquierda, no centrado. */}
-          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col justify-between overflow-hidden px-4 py-16 sm:px-6 md:py-20 lg:h-full lg:px-8 lg:py-16">
-            <div aria-hidden="true" className="invisible">
-              <Eyebrow className="mb-4">Think Tank</Eyebrow>
-              <h2 className="max-w-xl text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                Ideas que construyen el futuro.
-              </h2>
-            </div>
-
-            <div>
-              {managementAxes.map((axis, index) => {
-                const isLast = index === managementAxes.length - 1;
-
-                return (
-                  <div
-                    key={axis.title}
-                    className={['relative', isLast ? '' : 'border-b border-transparent'].join(' ')}
-                  >
-                    {/* Fila invisible: mismas clases que la fila real de la
-                        izquierda, solo para reservar exactamente el mismo alto
-                        y que la fila "03" quede a la misma altura en ambos lados. */}
-                    <div
-                      aria-hidden="true"
-                      className="invisible flex items-center justify-between gap-4 px-4 py-3 md:px-5 md:py-4"
-                    >
-                      <span className="text-sm font-bold tracking-tight md:text-base">{axis.title}</span>
-                      <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium tabular-nums tracking-wide">
-                        <span>‹</span>
-                        {String(index + 1).padStart(2, '0')}
-                        <span>›</span>
-                      </span>
-                    </div>
-
-                    {isLast && (
-                      <div className="absolute inset-0 flex items-center px-4 md:px-5">
-                        <CtaButton href="#comunidad">Sumarme al ecosistema</CtaButton>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
     </section>
