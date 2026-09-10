@@ -104,14 +104,15 @@ export default function NewsSection() {
     };
   }, [hoverCapable]);
 
-  // Mejora 3 — pin + scroll interno (solo desktop, >=1024px, mismo criterio
-  // que el carrusel de Media): al llegar a la sección, el scroll de la
-  // página se "captura" y mueve la lista de noticias hacia arriba/abajo
-  // dentro de su contenedor; recién al llegar a la última noticia (o a la
-  // primera, si se vuelve para atrás) se libera y la página sigue
-  // scrolleando normal. `scrub: true` (sin suavizado) para que el
-  // movimiento de la lista siga la rueda/trackpad 1 a 1, sin sensación de
-  // lag — eso es lo que se sentía "mal" en el intento anterior.
+  // Mejora 3 — pin + scroll interno (solo desktop, >=1024px). A diferencia
+  // del carrusel de Media (que anima `x`, horizontal), acá se anima `y`
+  // (vertical) en un descendiente del elemento pineado — con un
+  // ScrollTrigger.create() + onUpdate() manual (el patrón de Media, punto
+  // por punto) eso confunde el tracking interno de posición de GSAP: al
+  // soltar el pin queda un salto de exactamente el alto del overflow
+  // pegado a la sección. La solución probada es usar un tween real
+  // (gsap.to) con el scrollTrigger colgado del tween en vez de un
+  // ScrollTrigger suelto + gsap.set manual — mismo pin, sin ese salto.
   useLayoutEffect(() => {
     const mm = gsap.matchMedia();
 
@@ -124,13 +125,11 @@ export default function NewsSection() {
       // El trigger se crea recién cuando la sección está por entrar en
       // viewport (no al montar): la posición absoluta de #noticias depende
       // de la altura de TODO lo que está arriba, incluido el pin de Media
-      // (que reserva su propio rango de scroll "virtual"). Crear el
-      // ScrollTrigger al montar corre el riesgo de medir esa posición antes
-      // de que el pin de Media termine de asentarse, y ScrollTrigger.refresh()
-      // no siempre recalcula bien un trigger ya creado más allá de un pin
-      // ajeno. Crearlo acá, cuando el usuario ya scrolleó todo lo anterior,
-      // evita el problema de raíz: en ese momento la posición real ya es
-      // definitiva.
+      // (que reserva su propio rango de scroll "virtual"). Crearlo al
+      // montar mide esa posición antes de que el pin de Media termine de
+      // asentarse, y un refresh() posterior no siempre corrige bien un
+      // trigger creado más allá de un pin ajeno. Crearlo acá, cuando el
+      // usuario ya scrolleó todo lo anterior, evita el problema de raíz.
       let tween = null;
 
       const createTween = () => {
@@ -147,7 +146,6 @@ export default function NewsSection() {
             start: 'top top',
             end: `+=${overflow}`,
             pin: true,
-            anticipatePin: 1,
             scrub: true,
           },
         });
