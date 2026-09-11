@@ -133,6 +133,27 @@
     display: none;
   }
 
+  /* Barra de scroll oscura (navy más oscuro de la paleta, #020D1A — el
+     dark-900 del sistema de tokens) para contenedores con scroll interno
+     sobre fondo claro, como la lista de Actualidad & Prensa. */
+  .dark-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #020D1A transparent;
+  }
+
+  .dark-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .dark-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #020D1A;
+    border-radius: 0.25rem;
+  }
+
   /* Fluido con clamp() (--space-7) en vez de un valor fijo + override por
      media query — escala sola entre viewports, sin salto en el breakpoint. */
   .section-padding {

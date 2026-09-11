@@ -4,10 +4,13 @@
 // (#00e5ff) — para secciones con fondo claro, donde #55B4EB da más contraste.
 // tone="dark" usa el navy #043766 — para fondos claros/cálidos (ej. el card
 // dorado de Área FAN) donde ni el accent ni el celeste dan contraste.
+// tone="light" es blanco puro — para fondos sólidos de acento (ej. el panel
+// de Contacto), donde ni el accent ni el celeste (que ES el fondo) sirven.
 const TONE_CLASSES = {
   default: { text: 'text-accent', bullet: 'bg-accent' },
   brand: { text: 'text-brand-500', bullet: 'bg-brand-500' },
   dark: { text: 'text-surface', bullet: 'bg-surface' },
+  light: { text: 'text-white', bullet: 'bg-white' },
 };
 
 export default function Eyebrow({ children, className = '', tone = 'default' }) {

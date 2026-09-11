@@ -1,4 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  CardCurtainReveal,
+  CardCurtainRevealBody,
+  CardCurtainRevealFooter,
+  CardCurtainRevealTitle,
+  CardCurtain,
+} from './ui/CardCurtainReveal';
+import Eyebrow from './ui/Eyebrow';
 
 // Íconos lineales (solo stroke, sin relleno) — estilo minimal tipo la
 // referencia de sentientx.com, un ícono simple y reconocible por tarjeta.
@@ -73,7 +81,8 @@ const networkPartners = [
   },
 ];
 
-// Misión/Visión — split hero a pantalla completa con hover/tap para expandir.
+// Misión/Visión — cards compactas con efecto "Curtain Reveal" (hover en
+// desktop, tap en touch/mobile), ver Bloque D más abajo.
 const missionVisionCards = [
   {
     key: 'mision',
@@ -101,110 +110,9 @@ const missionVisionCards = [
   },
 ];
 
-// Card individual de Misión/Visión: título centrado en reposo, contenido
-// completo en estado activo (hover en desktop, tap en mobile/touch — ver
-// supportsHover() en el componente padre). flex-grow anima el ancho/alto
-// (según flex-row/flex-col por breakpoint) sin tocar width/height directo,
-// así el layout no "salta" y la transición es una sola propiedad animable.
-function MissionVisionCard({ card, isActive, onEnter, onLeave, onClick }) {
-  return (
-    <div
-      className="group relative h-full min-h-0 min-w-0 cursor-pointer overflow-hidden"
-      style={{ flexGrow: isActive ? 1.7 : 1, transition: 'flex-grow 700ms cubic-bezier(0.16, 1, 0.3, 1)' }}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-    >
-      {/* Fondo: imagen desenfocada + overlay oscuro para legibilidad */}
-      <div className="absolute inset-0">
-        <img
-          src={card.image}
-          alt={card.imageAlt}
-          className="h-full w-full scale-105 object-cover blur-sm"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-dark-100/80" />
-      </div>
-
-      {/* Divisor sutil, siempre perceptible sin importar el ancho relativo */}
-      <div className="absolute inset-y-0 right-0 w-px bg-white/10" aria-hidden="true" />
-
-      {/* Indicador de interacción — sin botón tradicional */}
-      <div
-        aria-hidden="true"
-        className={[
-          'absolute right-6 top-6 md:right-8 md:top-8 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white transition-opacity duration-500',
-          isActive ? 'opacity-0' : 'opacity-60 group-hover:opacity-100',
-        ].join(' ')}
-      >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      </div>
-
-      {/* Título centrado — estado de reposo */}
-      <div
-        className={[
-          'absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out',
-          isActive ? 'scale-95 opacity-0' : 'delay-150 scale-100 opacity-100',
-        ].join(' ')}
-      >
-        <h3 className="text-5xl font-medium tracking-tight text-white md:text-6xl">{card.headline}</h3>
-      </div>
-
-      {/* Contenido completo — estado activo. Padding horizontal alineado al
-          contenedor estándar del sitio (px-4 sm:px-6 lg:px-8); el vertical
-          mantiene su propio ritmo, más generoso, propio de este hero full-bleed. */}
-      <div
-        className={[
-          'absolute inset-0 flex flex-col justify-center px-4 py-8 sm:px-6 md:py-12 lg:px-8 lg:py-16 transition-all duration-500 ease-out',
-          isActive ? 'delay-150 translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0',
-        ].join(' ')}
-      >
-        <span className="mb-4 text-xs font-semibold uppercase tracking-widest text-accent">{card.label}</span>
-        <p className="mb-4 text-xl font-semibold leading-snug text-white md:text-2xl">{card.paragraphs[0]}</p>
-        <p className="leading-relaxed text-slate-300">{card.paragraphs[1]}</p>
-        <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/10 pt-6">
-          {card.concepts.map((concept, i) => (
-            <span
-              key={concept}
-              className={[
-                'text-xs font-medium uppercase tracking-widest text-slate-400 transition-all duration-500 ease-out',
-                isActive ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
-              ].join(' ')}
-              style={{ transitionDelay: isActive ? `${300 + i * 90}ms` : '0ms' }}
-            >
-              {concept}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function InstitutionalSection() {
   const partnersGridRef = useRef(null);
   const [linesVisible, setLinesVisible] = useState(false);
-  const [activeMissionVision, setActiveMissionVision] = useState(null);
-
-  // Hover (desktop) vs. tap (touch/mobile) para Misión/Visión: en
-  // dispositivos con hover real, el hover maneja todo el estado; el click
-  // no hace nada (si no, un click mientras se está hovereando colapsaría la
-  // card). En touch, el hover nunca dispara, así que el tap sí togglea el
-  // estado activo.
-  const supportsHover = () =>
-    typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
-
-  const handleMissionVisionEnter = (key) => {
-    if (supportsHover()) setActiveMissionVision(key);
-  };
-  const handleMissionVisionLeave = (key) => {
-    if (supportsHover()) setActiveMissionVision((prev) => (prev === key ? null : prev));
-  };
-  const handleMissionVisionClick = (key) => {
-    if (!supportsHover()) setActiveMissionVision((prev) => (prev === key ? null : key));
-  };
 
   // Scroll-reveal de las líneas divisorias de la grilla "Red de articulación":
   // threshold 0.35 + rootMargin -120px exigen que la sección esté bien entrada
@@ -232,13 +140,10 @@ export default function InstitutionalSection() {
 
   return (
     <section id="institucional" className="bg-dark-100 relative border-t border-white/5">
-      {/* Sin padding-top (a diferencia del resto de secciones, que usan la
-          clase section-padding): con top:0 la banda blanca de "Quiénes
-          somos" queda pegada al borde superior de la sección. Tampoco hay
-          padding-bottom: el bloque de Misión & Visión (full-bleed, 100svh)
-          es el último elemento y tiene que tocar el borde inferior real de
-          la sección — un padding-bottom acá dejaba una franja de bg-dark-100
-          visible entre ese bloque y el bg-dark de la sección siguiente. */}
+      {/* Sin padding-top/bottom en la sección (a diferencia del resto de
+          secciones, que usan la clase section-padding): con top:0 la banda
+          blanca de "Quiénes somos" queda pegada al borde superior, y cada
+          bloque interno (A, B, D) maneja su propio padding vertical. */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-900/10 to-transparent pointer-events-none" />
 
       {/* Bloque A: Quiénes somos — banda blanca full-bleed (única excepción
@@ -353,21 +258,62 @@ export default function InstitutionalSection() {
         </div>
       </div>
 
-      {/* Bloque D: Misión & Visión — split hero full-bleed a pantalla completa.
-          Fuera del max-w-7xl a propósito (igual que el bloque "Trabajamos junto a")
-          para que las dos cards ocupen el ancho completo del viewport. */}
-      <div id="mision-vision" className="relative z-10 bg-dark-100">
-        <div className="flex h-[100svh] w-full flex-col overflow-hidden lg:flex-row">
-          {missionVisionCards.map((card) => (
-            <MissionVisionCard
-              key={card.key}
-              card={card}
-              isActive={activeMissionVision === card.key}
-              onEnter={() => handleMissionVisionEnter(card.key)}
-              onLeave={() => handleMissionVisionLeave(card.key)}
-              onClick={() => handleMissionVisionClick(card.key)}
-            />
-          ))}
+      {/* Bloque D: Misión & Visión — dos cards compactas con efecto "Curtain
+          Reveal" (ref. card-curtain-reveal de 21st.dev, ver
+          components/ui/CardCurtainReveal.jsx). A diferencia del split hero
+          full-bleed anterior, el contenido (título + descripción) queda
+          siempre visible; solo el título se desplaza sutil y la foto del
+          footer se revela en cortina al hacer hover/tap. */}
+      <div id="mision-vision" className="relative z-10 border-t border-white/5 bg-dark-100 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {missionVisionCards.map((card) => (
+              <CardCurtainReveal
+                key={card.key}
+                className="h-[380px] rounded-medium border border-white/10 bg-surface md:h-[420px]"
+              >
+                <CardCurtainRevealBody className="p-6 md:p-8">
+                  <Eyebrow>{card.label}</Eyebrow>
+                  <CardCurtainRevealTitle
+                    shift={14}
+                    className="mt-5 text-2xl font-medium leading-tight text-white md:text-3xl"
+                  >
+                    {card.headline}
+                  </CardCurtainRevealTitle>
+                  <p className="mt-4 text-sm font-semibold leading-snug text-white md:text-base">
+                    {card.paragraphs[0]}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{card.paragraphs[1]}</p>
+
+                  <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-4">
+                    {card.concepts.map((concept) => (
+                      <span
+                        key={concept}
+                        className="text-[11px] font-medium uppercase tracking-widest text-slate-400"
+                      >
+                        {concept}
+                      </span>
+                    ))}
+                  </div>
+                </CardCurtainRevealBody>
+
+                {/* Footer: foto revelada en cortina desde el centro. La capa
+                    CardCurtain con mix-blend-difference usa el navy de
+                    marca (bg-surface, a pedido) — si contra la paleta de
+                    ADEEMA se ve rara/ilegible, sacar esa capa y dejar solo
+                    el reveal de la imagen (ya funciona sola). */}
+                <CardCurtainRevealFooter className="h-28 shrink-0 overflow-hidden md:h-32">
+                  <img
+                    src={card.image}
+                    alt={card.imageAlt}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                  <CardCurtain className="bg-surface mix-blend-difference" />
+                </CardCurtainRevealFooter>
+              </CardCurtainReveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

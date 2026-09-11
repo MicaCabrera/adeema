@@ -107,15 +107,35 @@ export default function FanSection() {
   }, []);
 
   return (
-    <section id="comunidad" ref={sectionRef} className="section-padding bg-dark relative border-y border-white/5">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="comunidad"
+      ref={sectionRef}
+      className="relative flex min-h-[640px] items-center justify-center overflow-hidden border-y border-white/5 py-16 md:min-h-[760px]"
+    >
+      {/* Fondo a pantalla completa (ref. williamsgptech.com "Work with us"):
+          imagen atenuada casi monocromática (grayscale + brightness bajo
+          por CSS, no depende de que la foto en sí sea oscura) + overlay
+          navy encima, para que quede como atmósfera, sin competir con el
+          panel. Placeholder — se reemplaza por una imagen real más
+          adelante, misma lógica que en Media/Noticias. */}
+      <div className="absolute inset-0" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=2000&q=80"
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover grayscale-[70%] brightness-[0.4] contrast-110"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl px-4 sm:px-6 lg:flex lg:justify-center lg:px-8">
         {/* Bloque newsletter (ref. "newsletter-2" de 21st.dev), adaptado a la
-            paleta de ADEEMA: panel gris translúcido (no un card blanco
-            opaco) que flota sobre el navy de fondo de la sección, texto a
-            la izquierda y form compacto de una sola línea (email + CTA) a
-            la derecha — sin nombre/apellido/ciudad, reducido a lo esencial
-            como en la referencia. */}
-        <div className="rounded-medium bg-white/5 px-6 py-10 backdrop-blur-sm sm:px-10 md:px-12 md:py-12">
+            paleta de ADEEMA: panel "glass" (navy translúcido + blur) que
+            flota centrado sobre la imagen de fondo, con ancho máximo fijo
+            para dejarla ver a los costados en pantallas grandes. Contenido
+            interno sin cambios: texto a la izquierda y form compacto de una
+            sola línea (email + CTA) a la derecha. */}
+        <div className="w-full rounded-medium bg-surface/45 px-6 py-10 backdrop-blur-md sm:px-10 md:px-12 md:py-12 lg:max-w-[960px]">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between md:gap-12 lg:gap-16">
             <div className="flex flex-col gap-3 md:max-w-sm">
               <div ref={eyebrowRef}>

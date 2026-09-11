@@ -1,11 +1,8 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CtaButton from './ui/CtaButton';
 import Eyebrow from './ui/Eyebrow';
 import { BRAND_ASSETS } from '../assets/brandAssets';
-
-gsap.registerPlugin(ScrollTrigger);
 
 // Estilo ref. oci.madebybuzzworthy.com: panel sólido con textura de medio
 // tono (halftone) + lista de notas con fecha/tag/título separadas por líneas
@@ -51,18 +48,17 @@ const newsItems = [
 ];
 
 export default function NewsSection() {
-  const sectionRef = useRef(null);
   const panelRef = useRef(null);
   const logoRef = useRef(null);
   const dotsRef = useRef(null);
-  const listViewportRef = useRef(null);
-  const listTrackRef = useRef(null);
 
   const hoverCapable = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
 
-  // Mejora 1 — el logo (y, más sutil, la textura de puntos) "sigue" al mouse
-  // dentro del panel navy con inercia (gsap.quickTo), no 1:1: da sensación
-  // de profundidad en capas sin que el logo se deforme ni salga del panel.
+  // El logo (y, más sutil, la textura de puntos) "sigue" al mouse dentro
+  // del panel navy con inercia (gsap.quickTo), no 1:1: da sensación de
+  // profundidad en capas sin que el logo se deforme ni salga del panel.
+  // Esto es pura animación de hover, sin relación con el scroll de la
+  // lista — se mantiene igual que antes.
   useLayoutEffect(() => {
     if (!hoverCapable) return undefined;
     const panel = panelRef.current;
@@ -104,80 +100,8 @@ export default function NewsSection() {
     };
   }, [hoverCapable]);
 
-  // Mejora 3 — pin + scroll interno (solo desktop, >=1024px). A diferencia
-  // del carrusel de Media (que anima `x`, horizontal), acá se anima `y`
-  // (vertical) en un descendiente del elemento pineado — con un
-  // ScrollTrigger.create() + onUpdate() manual (el patrón de Media, punto
-  // por punto) eso confunde el tracking interno de posición de GSAP: al
-  // soltar el pin queda un salto de exactamente el alto del overflow
-  // pegado a la sección. La solución probada es usar un tween real
-  // (gsap.to) con el scrollTrigger colgado del tween en vez de un
-  // ScrollTrigger suelto + gsap.set manual — mismo pin, sin ese salto.
-  useLayoutEffect(() => {
-    const mm = gsap.matchMedia();
-
-    mm.add('(min-width: 1024px)', () => {
-      const section = sectionRef.current;
-      const viewport = listViewportRef.current;
-      const track = listTrackRef.current;
-      if (!section || !viewport || !track) return undefined;
-
-      // El trigger se crea recién cuando la sección está por entrar en
-      // viewport (no al montar): la posición absoluta de #noticias depende
-      // de la altura de TODO lo que está arriba, incluido el pin de Media
-      // (que reserva su propio rango de scroll "virtual"). Crearlo al
-      // montar mide esa posición antes de que el pin de Media termine de
-      // asentarse, y un refresh() posterior no siempre corrige bien un
-      // trigger creado más allá de un pin ajeno. Crearlo acá, cuando el
-      // usuario ya scrolleó todo lo anterior, evita el problema de raíz.
-      let tween = null;
-
-      const createTween = () => {
-        if (tween) return;
-
-        const overflow = track.scrollHeight - viewport.clientHeight;
-        if (overflow <= 0) return;
-
-        tween = gsap.to(track, {
-          y: -overflow,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: `+=${overflow}`,
-            pin: true,
-            scrub: true,
-          },
-        });
-      };
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              createTween();
-              observer.disconnect();
-            }
-          });
-        },
-        { rootMargin: '600px 0px 600px 0px' }
-      );
-      observer.observe(section);
-
-      return () => {
-        observer.disconnect();
-        if (tween) {
-          tween.scrollTrigger?.kill();
-          tween.kill();
-        }
-      };
-    });
-
-    return () => mm.kill();
-  }, []);
-
   return (
-    <section id="noticias" ref={sectionRef} className="section-padding bg-dark relative border-y border-white/5">
+    <section id="noticias" className="section-padding bg-dark relative border-y border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Eyebrow className="mb-4">Actualidad</Eyebrow>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight mb-4">
@@ -190,9 +114,9 @@ export default function NewsSection() {
 
         <div className="grid overflow-hidden rounded-medium border border-white/10 lg:grid-cols-[0.85fr_1.6fr]">
           {/* Panel sólido con textura halftone — puramente gráfico, ancla
-              visual de la grilla. Logo y textura reaccionan al mouse
-              (mejora 1); permanece fijo durante el scroll interno de la
-              lista (mejora 3). */}
+              visual de la grilla. Logo y textura reaccionan al mouse. Sin
+              scroll propio: se mantiene fijo en su lugar mientras la
+              columna de al lado scrollea internamente. */}
           <div
             ref={panelRef}
             className="relative min-h-[220px] overflow-hidden bg-surface lg:h-[480px] lg:min-h-0"
@@ -208,44 +132,61 @@ export default function NewsSection() {
             />
           </div>
 
-          {/* Lista de notas: fecha + tag + título, separadas por líneas
-              finas. En hover, cada fila revela una foto a su propio tamaño
-              con overlay navy (mejora 2). En desktop, la lista scrollea
-              dentro de este contenedor de alto fijo (mejora 3); en mobile
-              queda con su alto natural y scroll normal de página. */}
-          <div ref={listViewportRef} className="relative bg-white lg:h-[480px] lg:overflow-hidden">
-            <div ref={listTrackRef} className="flex flex-col divide-y divide-surface/15 will-change-transform">
-              {newsItems.map((item) => (
+          {/* Lista de notas: scroll interno 100% nativo del navegador, sin
+              GSAP ni JS de por medio — `overflow-y-auto` + altura fija
+              (lg:h-[480px]) hacen que la columna scrollee sola cuando el
+              contenido no entra. A propósito NO lleva
+              `overscroll-behavior: contain`: esa propiedad bloquea el
+              scroll chaining hacia el padre, que es lo opuesto de lo que
+              queremos acá — el comportamiento nativo por defecto (auto,
+              sin setear nada) es justo el que "libera" el scroll hacia la
+              página al llegar al borde de la lista, arriba o abajo. En
+              mobile, sin alto fijo ni overflow: la lista queda en su alto
+              natural y scrollea con la página. */}
+          <div className="dark-scrollbar divide-y divide-surface/15 bg-white lg:h-[480px] lg:overflow-y-auto">
+            {newsItems.map((item) => (
+              <div
+                key={item.title}
+                className="group relative flex flex-col gap-3 overflow-hidden p-6 sm:flex-row sm:items-start sm:gap-6 md:p-8"
+              >
+                {/* Thumbnail chico en reposo (misma imagen, no dos elementos):
+                    siempre absolute, posicionado sobre el "hueco" que reserva
+                    el spacer de abajo. En hover crece a inset-0 (toda la
+                    fila) — un crecimiento real de tamaño/posición, no un
+                    fade de opacity entre dos estados. */}
+                <img
+                  src={item.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  className="pointer-events-none absolute left-6 top-[52px] z-0 h-16 w-16 rounded-small object-cover transition-[left,top,width,height,border-radius] duration-300 ease-out group-hover:left-0 group-hover:top-0 group-hover:h-full group-hover:w-full group-hover:rounded-none md:left-8 md:top-[60px]"
+                />
                 <div
-                  key={item.title}
-                  className="group relative flex flex-col gap-1 overflow-hidden p-6 sm:flex-row sm:items-baseline sm:gap-6 md:p-8"
-                >
-                  <img
-                    src={item.image}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                    className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition-[opacity,transform] duration-300 ease-out group-hover:scale-100 group-hover:opacity-100"
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-surface/0 transition-colors duration-300 ease-out group-hover:bg-surface/75"
-                  />
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-10 bg-surface/0 transition-colors duration-300 ease-out group-hover:bg-surface/75"
+                />
 
-                  <span className="relative z-10 shrink-0 text-xs font-semibold tabular-nums text-surface/40 transition-colors duration-300 group-hover:text-white/70 sm:w-14">
+                {/* Fecha (alto fijo, h-5) + spacer invisible del mismo
+                    tamaño que el thumbnail: reserva el espacio en el flujo
+                    normal para que el título no quede tapado por la imagen
+                    en reposo, en mobile y desktop por igual. */}
+                <div className="relative z-20 flex shrink-0 flex-col sm:w-16">
+                  <span className="block h-5 text-xs font-semibold tabular-nums text-surface/40 transition-colors duration-300 group-hover:text-white/70">
                     {item.date}
                   </span>
-                  <div className="relative z-10">
-                    <span className="text-xs font-semibold uppercase tracking-widest text-brand-500">
-                      {item.tag}
-                    </span>
-                    <h4 className="mt-1 text-base font-medium leading-snug text-surface transition-colors duration-300 group-hover:text-white sm:text-lg">
-                      {item.title}
-                    </h4>
-                  </div>
+                  <span aria-hidden="true" className="mt-2 block h-16 w-16" />
                 </div>
-              ))}
-            </div>
+
+                <div className="relative z-20">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-brand-500">
+                    {item.tag}
+                  </span>
+                  <h4 className="mt-1 text-base font-medium leading-snug text-surface transition-colors duration-300 group-hover:text-white sm:text-lg">
+                    {item.title}
+                  </h4>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

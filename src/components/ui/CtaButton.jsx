@@ -43,6 +43,11 @@ export default function CtaButton({
   href,
   as = 'button',
   className = '',
+  // El cuadrado del arrow (variante primary) es celeste fijo — invisible si
+  // el botón se usa sobre un fondo que ya es ese mismo celeste (ej. el
+  // panel de Contacto). Prop opcional para recolorearlo SOLO en esos casos
+  // puntuales; sin uso, el comportamiento y color de siempre no cambian.
+  squareClassName = 'bg-brand-500',
   onClick,
   ...props
 }) {
@@ -81,7 +86,7 @@ export default function CtaButton({
 
       <span
         aria-hidden="true"
-        className={`relative z-10 aspect-square shrink-0 overflow-hidden rounded-small bg-brand-500 ${SIZE.square}`}
+        className={`relative z-10 aspect-square shrink-0 overflow-hidden rounded-small ${squareClassName} ${SIZE.square}`}
       >
         <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-in-out group-hover:-translate-x-full group-hover:-translate-y-full">
           <ArrowIcon className={`${SIZE.icon} text-white`} />
