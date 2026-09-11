@@ -83,7 +83,7 @@ function FloatingTextarea({ id, label, required }) {
         id={id}
         name={id}
         required={required}
-        rows={4}
+        rows={3}
         placeholder=" "
         className="peer w-full resize-none border-0 bg-transparent px-0 pb-2 pt-5 text-sm text-white placeholder-transparent focus:outline-none"
       />
@@ -108,13 +108,6 @@ export default function ContactSection() {
 
   const openDrawer = () => setOpen(true);
   const closeDrawer = () => setOpen(false);
-
-  const handleTriggerKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openDrawer();
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -163,8 +156,11 @@ export default function ContactSection() {
   }, [open]);
 
   return (
-    <section id="contacto" className="section-padding bg-dark-100 relative overflow-hidden border-t border-white/5">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="contacto"
+      className="section-padding relative flex min-h-[100svh] items-center overflow-hidden bg-dark"
+    >
+      <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         {/* Vista inicial: badge + título + subtítulo apilados, en una sola
             columna (sin el split a 2 columnas que tenía antes). */}
         <div className="max-w-2xl">
@@ -181,8 +177,9 @@ export default function ContactSection() {
         {/* CTA principal — mismo componente global de botón que el resto del
             sitio (ya no un rectángulo de color propio). El wrapper con ref
             es solo para poder devolver el foco acá al cerrar el panel,
-            porque CtaButton no reenvía refs. */}
-        <div className="mt-10 flex flex-col items-start gap-4 md:mt-12">
+            porque CtaButton no reenvía refs. Separado del título/párrafo con
+            más aire (mt-16/20) para que no quede pegado. */}
+        <div className="mt-16 md:mt-20">
           <span ref={triggerRef} className="inline-block">
             <CtaButton
               as="button"
@@ -194,15 +191,6 @@ export default function ContactSection() {
               Iniciar conversación
             </CtaButton>
           </span>
-          <p className="text-sm text-slate-400">
-            o escribinos directo a{' '}
-            <a
-              href="mailto:contacto@adeema.org.ar"
-              className="text-white underline decoration-white/40 underline-offset-4 hover:decoration-white"
-            >
-              contacto@adeema.org.ar
-            </a>
-          </p>
         </div>
       </div>
 
@@ -220,11 +208,11 @@ export default function ContactSection() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="contacto-panel-title"
-          className={`absolute right-0 top-0 flex h-full w-full flex-col overflow-y-auto bg-surface p-6 shadow-2xl transition-transform duration-300 ease-out sm:w-[45%] sm:min-w-[420px] sm:p-10 md:p-12 ${
+          className={`absolute right-0 top-0 flex h-full w-full flex-col overflow-hidden bg-surface p-6 shadow-2xl transition-transform duration-300 ease-out sm:w-[45%] sm:min-w-[420px] sm:p-8 md:p-10 ${
             open ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          <div className="mb-10 flex items-center justify-between">
+          <div className="mb-6 flex shrink-0 items-center justify-between">
             <Eyebrow tone="light">Contacto</Eyebrow>
             <button
               type="button"
@@ -245,12 +233,12 @@ export default function ContactSection() {
             </div>
           ) : (
             <>
-              <h3 id="contacto-panel-title" className="text-3xl font-medium text-white leading-tight md:text-4xl">
+              <h3 id="contacto-panel-title" className="shrink-0 text-2xl font-medium text-white leading-tight md:text-3xl">
                 Vinculación Institucional
               </h3>
-              <p className="mt-3 text-sm text-white/70">Contanos qué necesitás.</p>
+              <p className="mt-2 shrink-0 text-sm text-white/70">Contanos qué necesitás.</p>
 
-              <form onSubmit={handleSubmit} className="mt-10 flex flex-1 flex-col gap-8">
+              <form onSubmit={handleSubmit} className="mt-6 flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
                 <FloatingInput
                   id="contacto-nombre"
                   label="Nombre y Apellido / Institución o Empresa"
@@ -261,7 +249,7 @@ export default function ContactSection() {
                 <FloatingSelect id="contacto-motivo" label="Motivo de la Consulta" required />
                 <FloatingTextarea id="contacto-mensaje" label="Mensaje / Propuesta" required />
 
-                <div className="mt-4">
+                <div className="mt-2">
                   <CtaButton as="button" type="submit" className="w-full justify-center">
                     Enviar
                   </CtaButton>

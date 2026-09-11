@@ -1,22 +1,28 @@
 import CtaButton from './ui/CtaButton';
 import Eyebrow from './ui/Eyebrow';
 
+// Placeholders — se reemplazan por fotografía real más adelante, mismo
+// criterio que el resto del sitio (Unsplash + object-cover + overlay).
 const paths = [
   {
     title: 'Cursos Especializados',
     description: 'Trayectos formativos enfocados en herramientas clave, gestión del entorno tecnológico y habilidades técnicas demandadas por el sector.',
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Diplomaturas Institucionales',
     description: 'Programas de formación continua con respaldo académico para profesionalizar la industria del gaming y los esports de manera sostenible.',
+    image: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Charlas & ADEEMA Talks',
     description: 'Ciclos de conferencias y masterclasses abiertas con expertos del sector, analizando el impacto educativo y social de la tecnología.',
+    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80',
   },
   {
     title: 'Programas de Innovación',
     description: 'Espacios de aceleración de conocimiento orientados al desarrollo de talento joven, transformación y capacidades tecnológicas aplicadas.',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
@@ -30,7 +36,7 @@ function ArrowIcon({ className }) {
 
 export default function AcademySection() {
   return (
-    <section id="academy" className="section-padding relative bg-dark border-y border-white/5">
+    <section id="academy" className="section-padding relative bg-dark">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header: eyebrow arriba en su propia línea; el título y el CTA
             "Ir a la Academia" van alineados horizontalmente en la misma fila. */}
@@ -57,10 +63,18 @@ export default function AcademySection() {
             <a
               key={path.title}
               href="https://academy.adeema.org.ar"
-              className="block overflow-hidden rounded-medium border border-white/5 bg-dark-200/50"
+              className="group block overflow-hidden rounded-medium border border-white/5 bg-dark-200/50"
             >
-              <div className="flex h-40 flex-col justify-end bg-surface p-5 md:h-48 md:p-6">
-                <h3 className="text-base md:text-lg font-medium text-white">{path.title}</h3>
+              <div className="relative flex h-40 flex-col justify-end overflow-hidden p-5 md:h-48 md:p-6">
+                <img
+                  src={path.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-[1.06]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent" />
+                <h3 className="relative z-10 text-base md:text-lg font-medium text-white">{path.title}</h3>
               </div>
               <div className="p-5 md:p-6">
                 <div className="mb-4 flex items-center gap-2">

@@ -5,7 +5,6 @@ import { InertiaPlugin } from 'gsap/InertiaPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Eyebrow from './ui/Eyebrow';
-import { BRAND_ASSETS } from '../assets/brandAssets';
 
 gsap.registerPlugin(Draggable, InertiaPlugin, ScrollTrigger, ScrollToPlugin);
 
@@ -46,9 +45,10 @@ function ArrowIcon({ className }) {
 }
 
 // Flecha de navegación del carrusel: mismo lenguaje visual que el cuadrado
-// celeste del CtaButton global (fondo #55B4EB, flecha blanca, hover con la
-// flecha escapando y el emblema ADEEMA entrando), con el radio chico del
-// sistema (rounded-small) en vez de esquinas rectas.
+// celeste del CtaButton global (fondo #55B4EB, flecha blanca), con el radio
+// chico del sistema (rounded-small) en vez de esquinas rectas. En hover se
+// invierten los colores (fondo blanco, flecha celeste) en vez de cambiar de
+// ícono.
 function CarouselArrow({ direction, onClick, disabled }) {
   return (
     <button
@@ -57,16 +57,13 @@ function CarouselArrow({ direction, onClick, disabled }) {
       disabled={disabled}
       aria-label={direction === 'prev' ? 'Anterior' : 'Siguiente'}
       className={[
-        'group relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-small bg-brand-500 transition-opacity duration-300 md:h-12 md:w-12',
+        'group flex h-9 w-9 shrink-0 items-center justify-center rounded-small bg-brand-500 transition-colors duration-300 hover:bg-white md:h-10 md:w-10',
         disabled ? 'pointer-events-none opacity-30' : 'opacity-100',
       ].join(' ')}
     >
-      <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-in-out group-hover:-translate-x-full group-hover:-translate-y-full">
-        <ArrowIcon className={`h-4 w-4 text-white ${direction === 'prev' ? 'rotate-180' : ''}`} />
-      </span>
-      <span className="absolute inset-0 flex -translate-x-full translate-y-full items-center justify-center transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-hover:translate-y-0">
-        <img src={BRAND_ASSETS.emblemNegative} alt="" aria-hidden="true" className="h-4 w-4 object-contain" loading="lazy" />
-      </span>
+      <ArrowIcon
+        className={`h-3.5 w-3.5 text-white transition-colors duration-300 group-hover:text-brand-500 ${direction === 'prev' ? 'rotate-180' : ''}`}
+      />
     </button>
   );
 }
@@ -117,7 +114,7 @@ export default function MediaSection() {
   useLayoutEffect(() => {
     const FLOOR_HEIGHT = 260; // último recurso en ventanas extremadamente bajas
     const MAX_HEIGHT = 650; // techo alto: en notebook no se llega a usar, en desktop grande sí
-    const GAP_BEFORE_ROW = 24; // mt-6 de la fila de flechas
+    const GAP_BEFORE_ROW = 16; // mt-4 de la fila de flechas
 
     const applyCardHeight = () => {
       if (window.innerWidth < 1024) {
@@ -360,19 +357,19 @@ export default function MediaSection() {
     <section
       ref={sectionRef}
       id="media"
-      className="relative overflow-hidden bg-white border-y border-surface/10 py-14 md:py-20 lg:h-screen"
+      className="relative overflow-hidden bg-dark py-14 md:py-20 lg:h-screen lg:py-10"
     >
       <div ref={wrapperRef} className="relative z-10 flex h-full flex-col lg:justify-center">
         <div ref={headerRef} className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
           {/* Header: eyebrow + título solo (el CTA ahora va abajo del
               carrusel, junto a las flechas). */}
-          <Eyebrow className="mb-4" tone="brand">Media Hub</Eyebrow>
+          <Eyebrow className="mb-3" tone="brand">Media Hub</Eyebrow>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-surface leading-tight mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight mb-4">
             ADEEMA Media
           </h2>
 
-          <p className="text-surface/70 text-sm md:text-base leading-relaxed max-w-2xl mb-8 lg:mb-10">
+          <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-2xl mb-6 lg:mb-6">
             Conectando audiencias a través de contenidos estratégicos, streaming y producciones audiovisuales
             sobre innovación y cultura del gaming.
           </p>
@@ -426,8 +423,8 @@ export default function MediaSection() {
                       />
                     </div>
 
-                    {/* Overlay: degradé oscuro #043766 de abajo hacia arriba, para legibilidad */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/30 to-transparent" />
+                    {/* Overlay: degradé negro de abajo hacia arriba, para legibilidad */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/95 via-dark/40 to-transparent" />
 
                     <div
                       ref={(el) => {
@@ -446,7 +443,7 @@ export default function MediaSection() {
 
           {/* Flechas prev/next — único contenido de la fila de abajo (el CTA
               se eliminó de esta fila). */}
-          <div ref={navRowRef} className="mt-6 flex items-center gap-3">
+          <div ref={navRowRef} className="mt-4 flex items-center justify-end gap-3 pr-4 sm:pr-6 lg:pr-8">
             <CarouselArrow direction="prev" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} />
             <CarouselArrow
               direction="next"

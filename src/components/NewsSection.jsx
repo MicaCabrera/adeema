@@ -1,8 +1,41 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import CtaButton from './ui/CtaButton';
 import Eyebrow from './ui/Eyebrow';
 import { BRAND_ASSETS } from '../assets/brandAssets';
+
+const NEWS_PER_PAGE = 3;
+
+function ArrowIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+// Flecha de navegación arriba/abajo del listado de noticias — mismo
+// lenguaje visual que las flechas del carrusel de Media Hub (cuadrado
+// celeste bg-brand-500, ícono blanco, hover con colores invertidos),
+// rotando el mismo ícono en vez de crear uno nuevo.
+function NewsNavArrow({ direction, onClick, disabled }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={direction === 'up' ? 'Noticias anteriores' : 'Siguientes noticias'}
+      className={[
+        'group flex h-9 w-9 shrink-0 items-center justify-center rounded-small bg-brand-500 transition-colors duration-300 hover:bg-white md:h-10 md:w-10',
+        disabled ? 'pointer-events-none opacity-30' : 'opacity-100',
+      ].join(' ')}
+    >
+      <ArrowIcon
+        className={`h-3.5 w-3.5 text-white transition-colors duration-300 group-hover:text-brand-500 ${direction === 'up' ? '-rotate-90' : 'rotate-90'}`}
+      />
+    </button>
+  );
+}
 
 // Estilo ref. oci.madebybuzzworthy.com: panel sólido con textura de medio
 // tono (halftone) + lista de notas con fecha/tag/título separadas por líneas
@@ -51,8 +84,34 @@ export default function NewsSection() {
   const panelRef = useRef(null);
   const logoRef = useRef(null);
   const dotsRef = useRef(null);
+  const listRef = useRef(null);
+  const isFirstRender = useRef(true);
+  const [groupIndex, setGroupIndex] = useState(0);
 
   const hoverCapable = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
+
+  const totalGroups = Math.ceil(newsItems.length / NEWS_PER_PAGE);
+  const visibleItems = newsItems.slice(
+    groupIndex * NEWS_PER_PAGE,
+    groupIndex * NEWS_PER_PAGE + NEWS_PER_PAGE
+  );
+
+  const goToPrevGroup = () => setGroupIndex((i) => Math.max(0, i - 1));
+  const goToNextGroup = () => setGroupIndex((i) => Math.min(totalGroups - 1, i + 1));
+
+  // Transición suave entre grupos de 3 noticias: fade + leve desplazamiento
+  // vertical, mismo patrón de animación que ya usa el resto del sitio (ver
+  // textRefs en MediaSection). Se salta en el primer render para no animar
+  // la carga inicial de la sección.
+  useLayoutEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const list = listRef.current;
+    if (!list) return;
+    gsap.fromTo(list, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+  }, [groupIndex]);
 
   // El logo (y, más sutil, la textura de puntos) "sigue" al mouse dentro
   // del panel navy con inercia (gsap.quickTo), no 1:1: da sensación de
@@ -101,7 +160,7 @@ export default function NewsSection() {
   }, [hoverCapable]);
 
   return (
-    <section id="noticias" className="section-padding bg-dark relative border-y border-white/5">
+    <section id="noticias" className="section-padding bg-dark relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Eyebrow className="mb-4">Actualidad</Eyebrow>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white leading-tight mb-4">
@@ -119,7 +178,7 @@ export default function NewsSection() {
               columna de al lado scrollea internamente. */}
           <div
             ref={panelRef}
-            className="relative min-h-[220px] overflow-hidden bg-surface lg:h-[480px] lg:min-h-0"
+            className="relative min-h-[280px] overflow-hidden bg-surface lg:h-[480px] lg:min-h-0"
           >
             <div ref={dotsRef} aria-hidden="true" className="halftone-dots absolute -inset-4 text-brand-500" />
             <img
@@ -130,70 +189,89 @@ export default function NewsSection() {
               className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 object-contain opacity-20 will-change-transform"
               loading="lazy"
             />
+
+            {/* CTA reubicado adentro del panel, anclado al margen inferior
+                (antes iba suelto debajo de toda la grilla). */}
+            <div className="absolute inset-x-6 bottom-6 md:inset-x-8 md:bottom-8">
+              <CtaButton as="button" type="button">
+                Ver todas las novedades
+              </CtaButton>
+            </div>
           </div>
 
-          {/* Lista de notas: scroll interno 100% nativo del navegador, sin
-              GSAP ni JS de por medio — `overflow-y-auto` + altura fija
-              (lg:h-[480px]) hacen que la columna scrollee sola cuando el
-              contenido no entra. A propósito NO lleva
-              `overscroll-behavior: contain`: esa propiedad bloquea el
-              scroll chaining hacia el padre, que es lo opuesto de lo que
-              queremos acá — el comportamiento nativo por defecto (auto,
-              sin setear nada) es justo el que "libera" el scroll hacia la
-              página al llegar al borde de la lista, arriba o abajo. En
-              mobile, sin alto fijo ni overflow: la lista queda en su alto
-              natural y scrollea con la página. */}
-          <div className="dark-scrollbar divide-y divide-surface/15 bg-white lg:h-[480px] lg:overflow-y-auto">
-            {newsItems.map((item) => (
-              <div
-                key={item.title}
-                className="group relative flex flex-col gap-3 overflow-hidden p-6 sm:flex-row sm:items-start sm:gap-6 md:p-8"
-              >
-                {/* Thumbnail chico en reposo (misma imagen, no dos elementos):
-                    siempre absolute, posicionado sobre el "hueco" que reserva
-                    el spacer de abajo. En hover crece a inset-0 (toda la
-                    fila) — un crecimiento real de tamaño/posición, no un
-                    fade de opacity entre dos estados. */}
-                <img
-                  src={item.image}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  className="pointer-events-none absolute left-6 top-[52px] z-0 h-16 w-16 rounded-small object-cover transition-[left,top,width,height,border-radius] duration-300 ease-out group-hover:left-0 group-hover:top-0 group-hover:h-full group-hover:w-full group-hover:rounded-none md:left-8 md:top-[60px]"
-                />
+          {/* Lista de notas: antes tenía scroll interno nativo
+              (`overflow-y-auto` + altura fija) para ver las 6 noticias de a
+              3; ahora se muestran directamente solo las 3 del grupo activo
+              (`visibleItems`) y se navega entre grupos con las flechas de
+              abajo — mismo alto fijo total (lg:h-[480px]), sin scrollbar.
+              Columna en flex-col: la lista toma el espacio restante
+              (flex-1) y dejan su propia fila abajo para las flechas, en
+              vez de superponerse encima de la última noticia. */}
+          <div className="flex flex-col bg-white lg:h-[480px]">
+            <div ref={listRef} className="flex-1 divide-y divide-surface/15 overflow-hidden">
+              {visibleItems.map((item) => (
                 <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 z-10 bg-surface/0 transition-colors duration-300 ease-out group-hover:bg-surface/75"
+                  key={item.title}
+                  className="group relative flex flex-col gap-3 overflow-hidden p-6 sm:flex-row sm:items-start sm:gap-6"
+                >
+                  {/* Thumbnail chico en reposo (misma imagen, no dos elementos):
+                      siempre absolute, posicionado sobre el "hueco" que reserva
+                      el spacer de abajo. En hover crece a inset-0 (toda la
+                      fila) — un crecimiento real de tamaño/posición, no un
+                      fade de opacity entre dos estados. Tamaño reducido
+                      (h-14, antes h-16) para que las 3 noticias del grupo
+                      entren completas en el alto fijo de la columna junto
+                      con la fila de flechas de abajo. */}
+                  <img
+                    src={item.image}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    className="pointer-events-none absolute left-6 top-[52px] z-0 h-14 w-14 rounded-small object-cover transition-[left,top,width,height,border-radius] duration-300 ease-out group-hover:left-0 group-hover:top-0 group-hover:h-full group-hover:w-full group-hover:rounded-none"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 z-10 bg-surface/0 transition-colors duration-300 ease-out group-hover:bg-surface/75"
+                  />
+
+                  {/* Fecha (alto fijo, h-5) + spacer invisible del mismo
+                      tamaño que el thumbnail: reserva el espacio en el flujo
+                      normal para que el título no quede tapado por la imagen
+                      en reposo, en mobile y desktop por igual. */}
+                  <div className="relative z-20 flex shrink-0 flex-col sm:w-14">
+                    <span className="block h-5 text-xs font-semibold tabular-nums text-surface/40 transition-colors duration-300 group-hover:text-white/70">
+                      {item.date}
+                    </span>
+                    <span aria-hidden="true" className="mt-2 block h-14 w-14" />
+                  </div>
+
+                  <div className="relative z-20">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-brand-500">
+                      {item.tag}
+                    </span>
+                    <h4 className="mt-1 text-base font-medium leading-snug text-surface transition-colors duration-300 group-hover:text-white sm:text-lg">
+                      {item.title}
+                    </h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Flechas de navegación entre grupos de 3 noticias, en su
+                propia fila debajo de la lista (no superpuestas) —
+                reemplazan la barra de scroll que tenía antes esta
+                columna. */}
+            {totalGroups > 1 && (
+              <div className="flex shrink-0 items-center justify-end gap-2 border-t border-surface/15 px-6 py-4 md:px-8">
+                <NewsNavArrow direction="up" onClick={goToPrevGroup} disabled={groupIndex === 0} />
+                <NewsNavArrow
+                  direction="down"
+                  onClick={goToNextGroup}
+                  disabled={groupIndex === totalGroups - 1}
                 />
-
-                {/* Fecha (alto fijo, h-5) + spacer invisible del mismo
-                    tamaño que el thumbnail: reserva el espacio en el flujo
-                    normal para que el título no quede tapado por la imagen
-                    en reposo, en mobile y desktop por igual. */}
-                <div className="relative z-20 flex shrink-0 flex-col sm:w-16">
-                  <span className="block h-5 text-xs font-semibold tabular-nums text-surface/40 transition-colors duration-300 group-hover:text-white/70">
-                    {item.date}
-                  </span>
-                  <span aria-hidden="true" className="mt-2 block h-16 w-16" />
-                </div>
-
-                <div className="relative z-20">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-brand-500">
-                    {item.tag}
-                  </span>
-                  <h4 className="mt-1 text-base font-medium leading-snug text-surface transition-colors duration-300 group-hover:text-white sm:text-lg">
-                    {item.title}
-                  </h4>
-                </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-
-        <div className="mt-10 text-center">
-          <CtaButton as="button" type="button">
-            Ver todas las novedades
-          </CtaButton>
         </div>
       </div>
     </section>

@@ -110,7 +110,7 @@ export default function FanSection() {
     <section
       id="comunidad"
       ref={sectionRef}
-      className="relative flex min-h-[640px] items-center justify-center overflow-hidden border-y border-white/5 py-16 md:min-h-[760px]"
+      className="relative flex min-h-[640px] items-center justify-center overflow-hidden py-16 md:min-h-[760px]"
     >
       {/* Fondo a pantalla completa (ref. williamsgptech.com "Work with us"):
           imagen atenuada casi monocromática (grayscale + brightness bajo
